@@ -1,0 +1,57 @@
+name: Build and Deploy Orvexa Platform
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Monorepo Dependencies
+        run: npm install --legacy-peer-deps
+
+      - name: Validate TypeScript Compilation
+        run: npm run build --legacy-peer-deps
+
+  deploy:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Deploy to VPS over SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          script: |
+            echo "Successfully connected to Orvexa VPS: ${{ secrets.SSH_HOST }}"
+            cd /var/www/orvexa-platform || cd ~/orvexa-platform
+            
+            echo "Pulling latest code updates..."
+            git pull origin main
+            
+            echo "Installing packages..."
+            npm install --legacy-peer-deps
+            
+            echo "Applying Prisma DB Migrations..."
+            npx prisma migrate deploy --schema=apps/recruit-api/prisma/schema.prisma
+            
+            echo "Building modules..."
+            npm run build --legacy-peer-deps
+            
+            echo "Reloading pm2 process groups..."
+            pm2 reload all || pm2 start dist/main.js --name "orvexa-recruit-api"
+            
+            echo "Deploy pipeline complete!"

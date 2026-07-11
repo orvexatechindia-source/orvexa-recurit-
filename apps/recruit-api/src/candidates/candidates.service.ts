@@ -1,0 +1,161 @@
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service';
+import { ApplyJobDto } from './dto/candidates.dto';
+import { ApplicationStatus } from '@prisma/client';
+import { AiService } from '../ai/ai.service';
+import { S3Service } from '../s3/s3.service';
+import * as fs from 'fs';
+
+@Injectable()
+export class CandidatesService {
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly aiService: AiService,
+    private readonly s3Service: S3Service
+  ) {}
+
+  async apply(dto: ApplyJobDto, file: any, tenantId: string) {
+    // 1. Verify that the target Job exists and is active inside this tenant
+    const job = await this.prisma.job.findUnique({
+      where: { id: dto.jobId },
+    });
+
+    if (!job) {
+      throw new NotFoundException(`Target Job opening with ID "${dto.jobId}" not found.`);
+    }
+
+    if (job.tenantId !== tenantId) {
+      throw new BadRequestException('Workspace mismatched: Job posting does not belong to this tenant.');
+    }
+
+    // Parse the resume asynchronously with Google Gemini AI
+    let parsedResult = {
+      summary: null as string | null,
+      skills: [] as string[],
+      matchScore: null as number | null,
+      fitExplanation: null as string | null,
+      suggestedQuestions: [] as string[],
+    };
+
+    try {
+      const fileBuffer = fs.readFileSync(file.path);
+      const aiResponse = await this.aiService.parseResume(
+        fileBuffer,
+        file.mimetype,
+        job.description,
+        tenantId
+      );
+      parsedResult = {
+        summary: aiResponse.summary,
+        skills: aiResponse.skills,
+        matchScore: aiResponse.matchScore,
+        fitExplanation: aiResponse.fitExplanation,
+        suggestedQuestions: aiResponse.suggestedQuestions,
+      };
+    } catch (err: any) {
+      console.error('Error reading/parsing resume file:', err.message || err);
+    }
+
+    // Upload candidate resume to AWS S3 (falls back to local filesystem static routes if AWS config is mock)
+    const fileBuffer = fs.readFileSync(file.path);
+    const resumeUrl = await this.s3Service.uploadFile(file.filename, fileBuffer, file.mimetype);
+
+    // 2. Find or Upsert Candidate based on (tenantId, email)
+    const candidate = await this.prisma.candidate.upsert({
+      where: {
+        tenantId_email: {
+          tenantId,
+          email: dto.email,
+        },
+      },
+      update: {
+        firstName: dto.firstName,
+        lastName: dto.lastName,
+        phone: dto.phone,
+        resumeUrl, // Overwrite resume with latest upload
+        skills: parsedResult.skills,
+        summary: parsedResult.summary,
+      },
+      create: {
+        firstName: dto.firstName,
+        lastName: dto.lastName,
+        email: dto.email,
+        phone: dto.phone,
+        resumeUrl,
+        skills: parsedResult.skills,
+        summary: parsedResult.summary,
+        tenantId,
+      },
+    });
+
+    // 3. Prevent duplicate active applications for the same Job posting
+    const existingApp = await this.prisma.application.findFirst({
+      where: {
+        candidateId: candidate.id,
+        jobId: dto.jobId,
+      },
+    });
+
+    if (existingApp) {
+      throw new BadRequestException('You have already applied for this job opening.');
+    }
+
+    // 4. Create Job Application linkage record with AI scores
+    const application = await this.prisma.application.create({
+      data: {
+        candidateId: candidate.id,
+        jobId: dto.jobId,
+        status: ApplicationStatus.APPLIED,
+        matchScore: parsedResult.matchScore,
+        fitExplanation: parsedResult.fitExplanation,
+        suggestedQuestions: parsedResult.suggestedQuestions,
+        tenantId,
+      },
+      include: {
+        candidate: true,
+        job: true,
+      },
+    });
+
+    return {
+      message: 'Application submitted successfully.',
+      applicationId: application.id,
+      candidateId: candidate.id,
+      matchScore: parsedResult.matchScore,
+    };
+  }
+
+  async findAll(tenantId: string) {
+    // Return all candidates in this workspace, bringing along their active applications and target jobs
+    return this.prisma.candidate.findMany({
+      where: { tenantId },
+      orderBy: { createdAt: 'desc' },
+      include: {
+        applications: {
+          include: {
+            job: {
+              select: { title: true },
+            },
+          },
+        },
+      },
+    });
+  }
+
+  async remove(id: string, tenantId: string) {
+    const candidate = await this.prisma.candidate.findUnique({
+      where: { id },
+    });
+
+    if (!candidate || candidate.tenantId !== tenantId) {
+      throw new NotFoundException(`Candidate profile with ID "${id}" not found.`);
+    }
+
+    // Delete candidate profile (Prisma cascade onDelete deletes applications)
+    await this.prisma.candidate.delete({
+      where: { id },
+    });
+
+    return { success: true, message: 'Candidate profile and all associated data deleted for compliance.' };
+  }
+}

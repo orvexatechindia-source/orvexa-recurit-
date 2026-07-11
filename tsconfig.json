@@ -1,0 +1,37 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "noImplicitThis": true,
+    "alwaysStrict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
+    "esModuleInterop": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "baseUrl": ".",
+    "paths": {
+      "@orvexa/config": ["packages/config/src/index.ts"],
+      "@orvexa/shared": ["packages/shared/src/index.ts"],
+      "@orvexa/ui": ["packages/ui/src/index.ts"],
+      "@orvexa/auth": ["packages/auth/src/index.ts"],
+      "@orvexa/ai": ["packages/ai/src/index.ts"],
+      "@orvexa/notifications": ["packages/notifications/src/index.ts"]
+    }
+  },
+  "exclude": ["node_modules", "dist", "build", "**/node_modules", "**/dist", "**/build"]
+}

@@ -1,0 +1,32 @@
+@import "tailwindcss";
+
+:root {
+  --background: #F0F5FA; /* Soft ice-blue/grey background from orvexatech.io */
+  --foreground: #1E293B; /* Slate dark text from orvexatech.io */
+  --primary: #046BD2; /* Brand Vibrant Blue from orvexatech.io */
+  --primary-hover: #045CB4; /* Brand Secondary Hover Blue */
+  --border: #E2E8F0;
+}
+
+.dark {
+  --background: #0B1220; /* Deep Navy dark mode background */
+  --foreground: #F8FAFC;
+  --primary: #046BD2;
+  --primary-hover: #045CB4;
+  --border: #1E293B;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --font-sans: var(--font-inter);
+  --font-display: var(--font-space-grotesk);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), sans-serif;
+}
