@@ -64,7 +64,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ className, onItemClick }) => {
   return (
     <aside className={`w-64 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0B1220] flex flex-col h-full ${className}`}>
       {/* Brand Header */}
-      <div className="h-16 flex items-center px-6 border-b border-slate-100 dark:border-slate-800">
+      <div className="h-16 items-center px-6 border-b border-slate-100 dark:border-slate-800 hidden lg:flex">
         <h2 className="text-lg font-bold tracking-tight text-[#0B1220] dark:text-white font-display">
           Orvexa <span className="text-[#2563EB]">Recruit</span>
         </h2>

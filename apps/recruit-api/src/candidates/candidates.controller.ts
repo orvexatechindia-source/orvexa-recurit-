@@ -9,7 +9,8 @@ import {
   Request, 
   UseInterceptors, 
   UploadedFile, 
-  BadRequestException 
+  BadRequestException,
+  Query
 } from '@nestjs/common';
 import { CandidatesService } from './candidates.service';
 import { ApplyJobDto } from './dto/candidates.dto';
@@ -46,13 +47,23 @@ export class CandidatesController {
     return createSuccessResponse(result);
   }
 
-  // 2. Recruiter Candidate Directory Listing
   @UseGuards(JwtAuthGuard, RbacGuard)
   @RequirePermissions(PERMISSIONS.VIEW_CANDIDATES)
   @Get()
-  async findAll(@Request() req: any) {
+  async findAll(
+    @Request() req: any,
+    @Query('query') query?: string,
+    @Query('skills') skills?: string,
+    @Query('minMatchScore') minMatchScore?: string,
+    @Query('jobId') jobId?: string
+  ) {
     const tenantId = req.tenantId;
-    const result = await this.candidatesService.findAll(tenantId);
+    const result = await this.candidatesService.findAllFiltered(tenantId, {
+      query,
+      skills,
+      minMatchScore: minMatchScore ? parseInt(minMatchScore, 10) : undefined,
+      jobId
+    });
     return createSuccessResponse(result);
   }
 

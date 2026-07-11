@@ -158,9 +158,47 @@ export class CandidatesService {
   }
 
   async findAll(tenantId: string) {
-    // Return all candidates in this workspace, bringing along their active applications and target jobs
-    return this.prisma.candidate.findMany({
-      where: { tenantId },
+    return this.findAllFiltered(tenantId, {});
+  }
+
+  async findAllFiltered(
+    tenantId: string,
+    filters: { query?: string; skills?: string; minMatchScore?: number; jobId?: string }
+  ) {
+    const { query, skills, minMatchScore, jobId } = filters;
+
+    const whereClause: any = { tenantId };
+
+    if (query && query.trim()) {
+      const q = query.trim();
+      whereClause.OR = [
+        { firstName: { contains: q, mode: 'insensitive' } },
+        { lastName: { contains: q, mode: 'insensitive' } },
+        { email: { contains: q, mode: 'insensitive' } },
+        { summary: { contains: q, mode: 'insensitive' } },
+      ];
+    }
+
+    if (skills && skills.trim()) {
+      const skillsArray = skills.split(',').map(s => s.trim()).filter(Boolean);
+      if (skillsArray.length > 0) {
+        whereClause.skills = {
+          hasSome: skillsArray
+        };
+      }
+    }
+
+    if (jobId || minMatchScore !== undefined) {
+      whereClause.applications = {
+        some: {
+          ...(jobId ? { jobId } : {}),
+          ...(minMatchScore !== undefined ? { matchScore: { gte: minMatchScore } } : {})
+        }
+      };
+    }
+
+    const candidates = await this.prisma.candidate.findMany({
+      where: whereClause,
       orderBy: { createdAt: 'desc' },
       include: {
         applications: {
@@ -171,6 +209,25 @@ export class CandidatesService {
           },
         },
       },
+    });
+
+    const candidateIds = candidates.map(c => c.id);
+    const customValues = await this.prisma.customValue.findMany({
+      where: {
+        tenantId,
+        entityId: { in: candidateIds }
+      },
+      include: {
+        field: true
+      }
+    });
+
+    return candidates.map(candidate => {
+      const values = customValues.filter(v => v.entityId === candidate.id);
+      return {
+        ...candidate,
+        customValues: values
+      };
     });
   }
 
