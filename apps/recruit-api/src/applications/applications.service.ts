@@ -43,6 +43,19 @@ export class ApplicationsService {
             startTime: 'asc',
           },
         },
+        reviews: {
+          include: {
+            interviewer: {
+              select: {
+                name: true,
+                email: true,
+              },
+            },
+          },
+          orderBy: {
+            createdAt: 'desc',
+          },
+        },
       },
     });
 

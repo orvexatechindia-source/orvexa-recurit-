@@ -24,6 +24,19 @@ interface Interview {
   };
 }
 
+interface Review {
+  id: string;
+  rating: number;
+  recommendation: 'STRONG_HIRE' | 'HIRE' | 'NO_HIRE' | 'STRONG_NO_HIRE';
+  notes: string;
+  createdAt: string;
+  interviewer: {
+    id: string;
+    name: string;
+    email: string;
+  };
+}
+
 interface Application {
   id: string;
   status: string;
@@ -45,6 +58,7 @@ interface Application {
     description: string;
   };
   interviews?: Interview[];
+  reviews?: Review[];
 }
 
 const STAGES = [
@@ -76,6 +90,12 @@ export default function PipelinePage() {
   const [endTime, setEndTime] = useState('');
   const [meetingUrl, setMeetingUrl] = useState('');
   const [schedulingLoading, setSchedulingLoading] = useState(false);
+
+  // Phase 9: Candidate Scorecard states
+  const [rating, setRating] = useState<number>(5);
+  const [recommendation, setRecommendation] = useState<'STRONG_HIRE' | 'HIRE' | 'NO_HIRE' | 'STRONG_NO_HIRE'>('HIRE');
+  const [notes, setNotes] = useState('');
+  const [submittingReview, setSubmittingReview] = useState(false);
 
   // 1. Fetch Tenant Jobs
   useEffect(() => {
@@ -237,6 +257,42 @@ export default function PipelinePage() {
       }
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  // Phase 9: Submit scorecard review handler
+  const handleSubmitReview = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedAppId || !notes.trim()) return;
+    setSubmittingReview(true);
+    try {
+      const response = await fetch('http://localhost:4000/api/v1/reviews', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}`,
+          'X-Tenant-ID': tenantId || '',
+        },
+        body: JSON.stringify({
+          applicationId: selectedAppId,
+          rating,
+          recommendation,
+          notes: notes.trim(),
+        }),
+      });
+      const result = await response.json();
+      if (!result.success) {
+        throw new Error(result.error?.message || 'Failed to submit scorecard.');
+      }
+
+      loadApplicationDetails(selectedAppId);
+      setNotes('');
+      setRating(5);
+      setRecommendation('HIRE');
+    } catch (err: any) {
+      alert(err.message);
+    } finally {
+      setSubmittingReview(false);
     }
   };
 
@@ -452,7 +508,7 @@ export default function PipelinePage() {
         </div>
       )}
 
-      {/* Candidate Details Sliding Drawer Panel (Phase 7 & 8) */}
+      {/* Candidate Details Sliding Drawer Panel (Phase 7, 8 & 9) */}
       {selectedAppId && (
         <>
           {/* Backdrop overlay */}
@@ -586,7 +642,7 @@ export default function PipelinePage() {
                   </div>
                 )}
 
-                {/* Phase 8: Interview Scheduler section (visible on any stage, but highlighted on INTERVIEWING) */}
+                {/* Phase 8: Interview Scheduler section */}
                 <div className="space-y-4 pt-6 border-t border-slate-150 dark:border-slate-800/60">
                   <div className="flex items-center space-x-2">
                     <Calendar className="h-4.5 w-4.5 text-[#046bd2] dark:text-cyan-400" />
@@ -688,6 +744,116 @@ export default function PipelinePage() {
                             >
                               Cancel
                             </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Phase 9: Scorecard Form & Evaluation Logs */}
+                <div className="space-y-4 pt-6 border-t border-slate-150 dark:border-slate-800/60">
+                  <div className="flex items-center space-x-2">
+                    <Award className="h-4.5 w-4.5 text-[#E57A5D] fill-[#E57A5D]/20" />
+                    <h4 className="text-sm font-bold text-slate-900 dark:text-white font-display">Evaluation & Reviews</h4>
+                  </div>
+
+                  {/* Form */}
+                  <form onSubmit={handleSubmitReview} className="p-4 bg-slate-50 dark:bg-slate-900/40 rounded-2xl border border-slate-200/60 dark:border-slate-800/80 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <label className="text-[10px] font-bold text-slate-400 uppercase">Hiring Rating</label>
+                      <div className="flex space-x-1">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <button
+                            key={star}
+                            type="button"
+                            onClick={() => setRating(star)}
+                            className="focus:outline-none"
+                          >
+                            <Award 
+                              className={`h-5 w-5 ${
+                                star <= rating 
+                                  ? 'text-amber-500 fill-amber-500' 
+                                  : 'text-slate-350 dark:text-slate-700'
+                              } transition-all`}
+                            />
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-bold text-slate-400 uppercase">Hiring Recommendation</label>
+                      <select
+                        value={recommendation}
+                        onChange={(e) => setRecommendation(e.target.value as any)}
+                        className="w-full h-9 px-2 text-xs rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0B1220] text-slate-900 dark:text-white focus:outline-none"
+                      >
+                        <option value="STRONG_HIRE">Strong Hire</option>
+                        <option value="HIRE">Hire</option>
+                        <option value="NO_HIRE">No Hire</option>
+                        <option value="STRONG_NO_HIRE">Strong No Hire</option>
+                      </select>
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-bold text-slate-400 uppercase">Feedback Evaluation Notes</label>
+                      <textarea
+                        required
+                        rows={3}
+                        placeholder="Write detailed assessment feedback notes..."
+                        value={notes}
+                        onChange={(e) => setNotes(e.target.value)}
+                        className="w-full p-2.5 text-xs rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0B1220] text-slate-900 dark:text-white focus:outline-none"
+                      />
+                    </div>
+
+                    <Button
+                      type="submit"
+                      disabled={submittingReview}
+                      className="w-full bg-[#E57A5D] hover:bg-[#d0674a] text-white text-xs h-9 font-bold"
+                    >
+                      {submittingReview ? 'Submitting...' : 'Submit Scorecard'}
+                    </Button>
+                  </form>
+
+                  {/* Logs list */}
+                  {selectedApp.reviews && selectedApp.reviews.length > 0 && (
+                    <div className="space-y-3 pt-2">
+                      <h5 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Evaluation Logs</h5>
+                      <div className="space-y-3">
+                        {selectedApp.reviews.map((rev) => (
+                          <div key={rev.id} className="p-4 bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-800 rounded-xl space-y-2 text-xs">
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <span className="font-bold text-slate-900 dark:text-white">{rev.interviewer.name}</span>
+                                <span className="text-[10px] text-slate-400 ml-2">{new Date(rev.createdAt).toLocaleDateString()}</span>
+                              </div>
+                              <span className={`px-2 py-0.5 rounded text-[9px] font-extrabold border ${
+                                rev.recommendation.includes('HIRE') && !rev.recommendation.includes('NO_HIRE')
+                                  ? 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/20 dark:text-emerald-400 dark:border-emerald-900/50'
+                                  : 'bg-red-50 text-red-700 border-red-200 dark:bg-red-950/20 dark:text-red-400 dark:border-red-900/50'
+                              }`}>
+                                {rev.recommendation.replace('_', ' ')}
+                              </span>
+                            </div>
+
+                            <div className="flex space-x-0.5">
+                              {[1, 2, 3, 4, 5].map((star) => (
+                                <Award
+                                  key={star}
+                                  className={`h-3.5 w-3.5 ${
+                                    star <= rev.rating 
+                                      ? 'text-amber-500 fill-amber-500' 
+                                      : 'text-slate-200 dark:text-slate-700'
+                                  }`}
+                                />
+                              ))}
+                            </div>
+
+                            <p className="text-slate-600 dark:text-slate-400 leading-relaxed italic mt-1.5">
+                              "{rev.notes}"
+                            </p>
                           </div>
                         ))}
                       </div>
