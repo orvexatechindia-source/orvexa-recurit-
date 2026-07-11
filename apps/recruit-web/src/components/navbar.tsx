@@ -3,23 +3,38 @@
 import React from 'react';
 import { useAuth } from '../context/auth-context';
 import { useTheme } from './theme-provider';
-import { Sun, Moon, LogOut, Bell } from 'lucide-react';
+import { Sun, Moon, LogOut, Bell, Menu } from 'lucide-react';
 import { Button } from '@orvexa/ui';
 
-export const Navbar: React.FC = () => {
+interface NavbarProps {
+  onMenuClick: () => void;
+}
+
+export const Navbar: React.FC<NavbarProps> = ({ onMenuClick }) => {
   const { user, companyName, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
 
   if (!user) return null;
 
   return (
-    <header className="h-16 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0B1220] flex items-center justify-between px-6 sticky top-0 z-30">
-      {/* Search / Org Breadcrumbs */}
-      <div className="flex items-center space-x-2">
-        <span className="text-sm font-semibold text-slate-500 dark:text-slate-400">Workspace:</span>
-        <span className="text-sm font-bold text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-md">
-          {companyName || 'Recruit'}
-        </span>
+    <header className="h-16 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0B1220] flex items-center justify-between px-6 sticky top-0 z-30 font-sans">
+      <div className="flex items-center space-x-4">
+        {/* Mobile sandwich hamburger bar */}
+        <button
+          onClick={onMenuClick}
+          className="p-2 -ml-2 rounded-lg text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 lg:hidden focus:outline-none"
+          aria-label="Toggle Navigation Sidebar"
+        >
+          <Menu className="h-5 w-5" />
+        </button>
+
+        {/* Search / Org Breadcrumbs */}
+        <div className="flex items-center space-x-2">
+          <span className="text-sm font-semibold text-slate-500 dark:text-slate-400 hidden sm:inline">Workspace:</span>
+          <span className="text-sm font-bold text-slate-900 dark:text-white bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-md">
+            {companyName || 'Recruit'}
+          </span>
+        </div>
       </div>
 
       {/* Quick Controls */}

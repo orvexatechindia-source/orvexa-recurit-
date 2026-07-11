@@ -17,9 +17,10 @@ import {
 
 interface SidebarProps {
   className?: string;
+  onItemClick?: () => void;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ className }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ className, onItemClick }) => {
   const { user } = useAuth();
 
   if (!user) return null;
@@ -77,6 +78,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ className }) => {
             <a
               key={idx}
               href={item.path}
+              onClick={onItemClick}
               className="flex items-center space-x-3 px-3 py-2 text-sm font-medium rounded-lg text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-[#2563EB] dark:hover:text-[#06B6D4] transition-all group"
             >
               <Icon className="h-5 w-5 text-slate-400 dark:text-slate-500 group-hover:text-[#2563EB] dark:group-hover:text-[#06B6D4] transition-all" />
