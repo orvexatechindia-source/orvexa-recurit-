@@ -67,7 +67,31 @@ export class ApplicationsService {
       throw new ForbiddenException('Access Denied: You do not have access to this resource.');
     }
 
-    return application;
+    // Fetch custom values linked to Candidate or Job
+    const customValues = await this.prisma.customValue.findMany({
+      where: {
+        tenantId,
+        entityId: { in: [application.candidateId, application.jobId] }
+      },
+      include: {
+        field: true
+      }
+    });
+
+    const candidateValues = customValues.filter(v => v.entityId === application.candidateId);
+    const jobValues = customValues.filter(v => v.entityId === application.jobId);
+
+    return {
+      ...application,
+      candidate: {
+        ...application.candidate,
+        customValues: candidateValues
+      },
+      job: {
+        ...application.job,
+        customValues: jobValues
+      }
+    };
   }
 
   async updateStage(id: string, status: ApplicationStatus, tenantId: string) {

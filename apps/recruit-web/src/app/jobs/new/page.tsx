@@ -1,11 +1,18 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../../context/auth-context';
 import { DashboardLayout } from '../../../components/dashboard-layout';
 import { Button, Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@orvexa/ui';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Sparkles } from 'lucide-react';
+import { ArrowLeft, Sparkles, Layers } from 'lucide-react';
+
+interface CustomField {
+  id: string;
+  fieldName: string;
+  fieldType: 'TEXT' | 'NUMBER' | 'BOOLEAN' | 'DROPDOWN';
+  options: string[];
+}
 
 export default function NewJobPage() {
   const { accessToken, tenantId } = useAuth();
@@ -21,6 +28,38 @@ export default function NewJobPage() {
   // AI Prompt outline variables
   const [aiOutline, setAiOutline] = useState('');
   const [generatingDesc, setGeneratingDesc] = useState(false);
+
+  // Phase 11 Custom Fields
+  const [customFields, setCustomFields] = useState<CustomField[]>([]);
+  const [customValues, setCustomValues] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    const fetchCustomFields = async () => {
+      try {
+        const response = await fetch('http://localhost:4000/api/v1/custom-fields?entityType=JOB', {
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'X-Tenant-ID': tenantId || '',
+          },
+        });
+        const result = await response.json();
+        if (result.success) {
+          setCustomFields(result.data);
+          const defaults: Record<string, string> = {};
+          result.data.forEach((f: CustomField) => {
+            defaults[f.id] = f.fieldType === 'BOOLEAN' ? 'false' : '';
+          });
+          setCustomValues(defaults);
+        }
+      } catch (err) {
+        console.error('Failed to load custom fields:', err);
+      }
+    };
+
+    if (accessToken) {
+      fetchCustomFields();
+    }
+  }, [accessToken, tenantId]);
 
   const handleGenerateDescription = async () => {
     if (!aiOutline.trim()) return;
@@ -44,7 +83,6 @@ export default function NewJobPage() {
       const expandedText = result.data.description;
       setDescription(expandedText);
 
-      // Extract text under '### Technical Requirements' header to populate requirements field if present
       const reqHeader = '### Technical Requirements';
       const parts = expandedText.split(reqHeader);
       if (parts.length > 1) {
@@ -57,11 +95,19 @@ export default function NewJobPage() {
     }
   };
 
+  const handleCustomValueChange = (fieldId: string, val: string) => {
+    setCustomValues(prev => ({
+      ...prev,
+      [fieldId]: val
+    }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
     try {
+      // 1. Create Job opening
       const response = await fetch('http://localhost:4000/api/v1/jobs', {
         method: 'POST',
         headers: {
@@ -81,6 +127,29 @@ export default function NewJobPage() {
       if (!result.success) {
         throw new Error(result.error?.message || 'Failed to create job.');
       }
+
+      const jobId = result.data.id;
+
+      // 2. Save Custom Field Values
+      if (Object.keys(customValues).length > 0) {
+        const valuesRes = await fetch('http://localhost:4000/api/v1/custom-fields/values', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${accessToken}`,
+            'X-Tenant-ID': tenantId || '',
+          },
+          body: JSON.stringify({
+            entityId: jobId,
+            values: customValues
+          }),
+        });
+        const valuesResult = await valuesRes.json();
+        if (!valuesResult.success) {
+          console.warn('Failed to save some custom values:', valuesResult.error?.message);
+        }
+      }
+
       router.push('/jobs');
     } catch (err: any) {
       setError(err.message);
@@ -130,11 +199,10 @@ export default function NewJobPage() {
                     placeholder="e.g. Senior Full Stack Engineer"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
-                    className="w-full h-10 px-3 rounded-md border border-slate-300 dark:border-slate-700 bg-transparent text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#046bd2] focus:border-transparent transition-all animate-none"
+                    className="w-full h-10 px-3 rounded-md border border-slate-300 dark:border-slate-700 bg-transparent text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#046bd2] focus:border-transparent transition-all"
                   />
                 </div>
 
-                {/* Gemini AI writing assistant */}
                 <div className="p-4 bg-[#FAF6F0] dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800/60 rounded-xl space-y-3">
                   <div className="flex items-center justify-between">
                     <h4 className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center space-x-1.5">
@@ -233,8 +301,72 @@ export default function NewJobPage() {
                   </select>
                 </div>
               </CardContent>
-              <CardFooter className="pt-6">
-                <Button type="submit" disabled={loading} className="w-full bg-[#046bd2] hover:bg-[#035bb3]">
+            </Card>
+
+            {/* Dynamic Custom Properties Card */}
+            {customFields.length > 0 && (
+              <Card className="border border-slate-200 dark:border-slate-800">
+                <CardHeader>
+                  <CardTitle className="text-slate-900 dark:text-white flex items-center space-x-1.5">
+                    <Layers className="h-4.5 w-4.5 text-[#2563EB]" />
+                    <span>Custom Properties</span>
+                  </CardTitle>
+                  <CardDescription>Custom fields configured for job openings.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4 text-xs">
+                  {customFields.map((field) => (
+                    <div key={field.id} className="space-y-1.5">
+                      <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                        {field.fieldName}
+                      </label>
+                      
+                      {field.fieldType === 'BOOLEAN' ? (
+                        <div className="flex items-center space-x-2">
+                          <input
+                            type="checkbox"
+                            checked={customValues[field.id] === 'true'}
+                            onChange={(e) => handleCustomValueChange(field.id, String(e.target.checked))}
+                            className="h-4 w-4 rounded border-slate-300 text-[#046bd2] focus:ring-[#046bd2]"
+                          />
+                          <span className="text-xs text-slate-500">Enable option</span>
+                        </div>
+                      ) : field.fieldType === 'DROPDOWN' ? (
+                        <select
+                          value={customValues[field.id] || ''}
+                          onChange={(e) => handleCustomValueChange(field.id, e.target.value)}
+                          className="w-full h-9 px-2.5 rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0B1220] text-slate-900 dark:text-white focus:outline-none"
+                        >
+                          <option value="">Select option...</option>
+                          {field.options.map((opt, oIdx) => (
+                            <option key={oIdx} value={opt}>{opt}</option>
+                          ))}
+                        </select>
+                      ) : field.fieldType === 'NUMBER' ? (
+                        <input
+                          type="number"
+                          placeholder="e.g. 50000"
+                          value={customValues[field.id] || ''}
+                          onChange={(e) => handleCustomValueChange(field.id, e.target.value)}
+                          className="w-full h-9 px-2.5 rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0B1220] text-slate-900 dark:text-white focus:outline-none"
+                        />
+                      ) : (
+                        <input
+                          type="text"
+                          placeholder="e.g. text input details"
+                          value={customValues[field.id] || ''}
+                          onChange={(e) => handleCustomValueChange(field.id, e.target.value)}
+                          className="w-full h-9 px-2.5 rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0B1220] text-slate-900 dark:text-white focus:outline-none"
+                        />
+                      )}
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            )}
+
+            <Card className="border border-transparent bg-transparent shadow-none">
+              <CardFooter className="p-0">
+                <Button type="submit" disabled={loading} className="w-full bg-[#046bd2] hover:bg-[#035bb3] h-10 text-sm font-bold">
                   {loading ? 'Creating vacancy...' : 'Save vacancy'}
                 </Button>
               </CardFooter>

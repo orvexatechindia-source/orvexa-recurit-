@@ -5,6 +5,7 @@ import { ApplicationStatus } from '@prisma/client';
 import { AiService } from '../ai/ai.service';
 import { S3Service } from '../s3/s3.service';
 import { SesService } from '../notifications/ses.service';
+import { CustomFieldsService } from '../custom-fields/custom-fields.service';
 import { getApplicationConfirmationTemplate } from '@orvexa/notifications';
 import * as fs from 'fs';
 
@@ -14,7 +15,8 @@ export class CandidatesService {
     private readonly prisma: PrismaService,
     private readonly aiService: AiService,
     private readonly s3Service: S3Service,
-    private readonly sesService: SesService
+    private readonly sesService: SesService,
+    private readonly customFieldsService: CustomFieldsService
   ) {}
 
   async apply(dto: ApplyJobDto, file: any, tenantId: string) {
@@ -119,6 +121,19 @@ export class CandidatesService {
         job: true,
       },
     });
+
+    // Save Candidate custom values if provided
+    if (dto.customValues) {
+      try {
+        const valuesMap = JSON.parse(dto.customValues);
+        await this.customFieldsService.saveValues({
+          entityId: candidate.id,
+          values: valuesMap
+        }, tenantId);
+      } catch (err: any) {
+        console.warn('Failed to parse or save candidate custom values:', err.message || err);
+      }
+    }
 
     // Send application confirmation email alert
     try {

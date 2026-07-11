@@ -52,10 +52,26 @@ interface Application {
     resumeUrl?: string;
     skills: string[];
     summary?: string;
+    customValues?: {
+      id: string;
+      value: string;
+      field: {
+        fieldName: string;
+        fieldType: string;
+      };
+    }[];
   };
   job: {
     title: string;
     description: string;
+    customValues?: {
+      id: string;
+      value: string;
+      field: {
+        fieldName: string;
+        fieldType: string;
+      };
+    }[];
   };
   interviews?: Interview[];
   reviews?: Review[];
@@ -617,6 +633,25 @@ export default function PipelinePage() {
                         <span key={sIdx} className="text-xs bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 px-2.5 py-1 rounded-md font-medium border border-slate-200/50 dark:border-transparent">
                           {skill}
                         </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Candidate Custom Properties (Phase 11) */}
+                {selectedApp.candidate.customValues && selectedApp.candidate.customValues.length > 0 && (
+                  <div className="space-y-3 pt-4 border-t border-slate-100 dark:border-slate-800">
+                    <h4 className="text-sm font-bold text-slate-900 dark:text-white font-display">Workspace Metadata</h4>
+                    <div className="grid grid-cols-2 gap-3 text-xs">
+                      {selectedApp.candidate.customValues.map((v) => (
+                        <div key={v.id} className="p-3 bg-slate-50 dark:bg-slate-900/40 border border-slate-200/50 dark:border-slate-800/80 rounded-xl space-y-1">
+                          <span className="text-[10px] font-bold text-slate-400 uppercase">{v.field.fieldName}</span>
+                          <p className="font-semibold text-slate-900 dark:text-white">
+                            {v.field.fieldType === 'BOOLEAN'
+                              ? (v.value === 'true' ? 'Yes / Enabled' : 'No / Disabled')
+                              : v.value}
+                          </p>
+                        </div>
                       ))}
                     </div>
                   </div>

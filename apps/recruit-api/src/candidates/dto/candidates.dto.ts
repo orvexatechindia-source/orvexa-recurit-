@@ -20,4 +20,8 @@ export class ApplyJobDto {
   @IsString()
   @IsNotEmpty()
   jobId!: string;
+
+  @IsString()
+  @IsOptional()
+  customValues?: string;
 }
