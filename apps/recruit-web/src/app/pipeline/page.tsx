@@ -75,6 +75,9 @@ interface Application {
   };
   interviews?: Interview[];
   reviews?: Review[];
+  offerLetter?: string;
+  offerStatus?: string;
+  signedAt?: string;
 }
 
 const STAGES = [
@@ -112,6 +115,10 @@ export default function PipelinePage() {
   const [recommendation, setRecommendation] = useState<'STRONG_HIRE' | 'HIRE' | 'NO_HIRE' | 'STRONG_NO_HIRE'>('HIRE');
   const [notes, setNotes] = useState('');
   const [submittingReview, setSubmittingReview] = useState(false);
+
+  // Phase 14: Offer extensions states
+  const [offerLetter, setOfferLetter] = useState('');
+  const [extendingOffer, setExtendingOffer] = useState(false);
 
   // 1. Fetch Tenant Jobs
   useEffect(() => {
@@ -206,11 +213,48 @@ export default function PipelinePage() {
       const result = await response.json();
       if (result.success) {
         setSelectedApp(result.data);
+        if (!result.data.offerLetter) {
+          setOfferLetter(
+            `Dear ${result.data.candidate.firstName} ${result.data.candidate.lastName},\n\nWe are pleased to offer you the position of "${result.data.job.title}" with Orvexatech. We were impressed by your skills and look forward to welcoming you to the team.\n\nSalary: $85,000 / year\nStart Date: August 1, 2026\n\nBest regards,\nRecruitment Team`
+          );
+        } else {
+          setOfferLetter(result.data.offerLetter);
+        }
       }
     } catch (err) {
       console.error(err);
     } finally {
       setLoadingDetails(false);
+    }
+  };
+
+  // Extend Job Offer letter handler (Phase 14)
+  const handleExtendOffer = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedAppId || !offerLetter.trim()) return;
+    setExtendingOffer(true);
+    try {
+      const response = await fetch(`http://localhost:4000/api/v1/candidate-portal/recruiter/extend-offer/${selectedAppId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}`,
+          'X-Tenant-ID': tenantId || '',
+        },
+        body: JSON.stringify({ offerLetter }),
+      });
+      const result = await response.json();
+      if (result.success) {
+        alert('Job offer letter has been extended to the applicant portal successfully.');
+        loadApplicationDetails(selectedAppId);
+        fetchApplications();
+      } else {
+        throw new Error(result.error?.message || 'Failed to extend offer letter.');
+      }
+    } catch (err: any) {
+      alert(err.message);
+    } finally {
+      setExtendingOffer(false);
     }
   };
 
@@ -892,6 +936,58 @@ export default function PipelinePage() {
                           </div>
                         ))}
                       </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Offer Letter & Digital Signatures Management Module (Phase 14) */}
+                <div className="space-y-4 pt-6 border-t border-slate-150 dark:border-slate-800/60">
+                  <div className="flex items-center space-x-2">
+                    <FileText className="h-4.5 w-4.5 text-[#2563EB]" />
+                    <h4 className="text-sm font-bold text-slate-900 dark:text-white font-display">Job Offer Management</h4>
+                  </div>
+                  
+                  {!selectedApp.offerStatus ? (
+                    <form onSubmit={handleExtendOffer} className="p-4 bg-slate-50 dark:bg-slate-900/40 rounded-2xl border border-slate-200/60 dark:border-slate-800/80 space-y-3">
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-bold text-slate-400 uppercase">Draft Offer Letter Terms</label>
+                        <textarea
+                          required
+                          rows={6}
+                          value={offerLetter}
+                          onChange={(e) => setOfferLetter(e.target.value)}
+                          className="w-full p-2.5 text-xs rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0B1220] text-slate-900 dark:text-white focus:outline-none"
+                        />
+                      </div>
+                      <Button
+                        type="submit"
+                        disabled={extendingOffer}
+                        className="w-full bg-[#2563EB] hover:bg-blue-700 text-white text-xs h-9 font-bold"
+                      >
+                        {extendingOffer ? 'Extending Job Offer...' : 'Extend Job Offer'}
+                      </Button>
+                    </form>
+                  ) : (
+                    <div className="p-4 bg-slate-50 dark:bg-slate-900/40 border border-slate-200/60 dark:border-slate-800/80 rounded-2xl space-y-2 text-xs">
+                      <div className="flex items-center justify-between">
+                        <span className="font-bold text-slate-900 dark:text-white">Offer Letter Extended</span>
+                        <span className={`px-2 py-0.5 rounded text-[9px] font-extrabold border ${
+                          selectedApp.offerStatus === 'ACCEPTED'
+                            ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                            : selectedApp.offerStatus === 'DECLINED'
+                            ? 'bg-red-50 text-red-700 border-red-200'
+                            : 'bg-amber-50 text-amber-700 border-amber-200'
+                        }`}>
+                          {selectedApp.offerStatus}
+                        </span>
+                      </div>
+                      <p className="text-[10px] text-slate-400 italic leading-relaxed">
+                        {selectedApp.offerStatus === 'ACCEPTED'
+                          ? `Signed & accepted by candidate on ${selectedApp.signedAt ? new Date(selectedApp.signedAt).toLocaleDateString() : ''}`
+                          : selectedApp.offerStatus === 'DECLINED'
+                          ? 'Declined by candidate'
+                          : 'Awaiting candidate response inside applicant portal'}
+                      </p>
                     </div>
                   )}
                 </div>

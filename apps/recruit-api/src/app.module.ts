@@ -14,6 +14,7 @@ import { ReviewsModule } from './reviews/reviews.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { CustomFieldsModule } from './custom-fields/custom-fields.module';
 import { BillingModule } from './billing/billing.module';
+import { CandidatePortalModule } from './candidate-portal/candidate-portal.module';
 import { TenantMiddleware } from './common/middleware/tenant.middleware';
 
 @Module({
@@ -30,7 +31,8 @@ import { TenantMiddleware } from './common/middleware/tenant.middleware';
     ReviewsModule,
     NotificationsModule,
     CustomFieldsModule,
-    BillingModule
+    BillingModule,
+    CandidatePortalModule
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -150,6 +150,9 @@ model Application {
   updatedAt          DateTime          @updatedAt @map("updated_at")
   interviews         Interview[]
   reviews            Review[]
+  offerLetter        String?           @map("offer_letter")
+  offerStatus        String?           @map("offer_status") // "EXTENDED", "ACCEPTED", "DECLINED"
+  signedAt           DateTime?         @map("signed_at")
 
   @@index([tenantId])
   @@index([jobId])
