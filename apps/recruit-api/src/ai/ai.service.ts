@@ -19,7 +19,7 @@ export class AiService implements OnModuleInit {
       console.warn('WARN: GEMINI_API_KEY is not defined in environment variables. AI features will run in mock fallback mode.');
       return;
     }
-    this.geminiService = new GeminiService(apiKey, 'gemini-1.5-pro');
+    this.geminiService = new GeminiService(apiKey, 'gemini-flash-latest');
   }
 
   async parseResume(

@@ -25,7 +25,7 @@ export class GeminiService {
   private ai: GoogleGenerativeAI;
   private defaultModel: string;
 
-  constructor(apiKey: string, defaultModel = "gemini-1.5-pro") {
+  constructor(apiKey: string, defaultModel = "gemini-flash-latest") {
     if (!apiKey) {
       throw new Error("GEMINI_API_KEY must be provided to initialize GeminiService");
     }
