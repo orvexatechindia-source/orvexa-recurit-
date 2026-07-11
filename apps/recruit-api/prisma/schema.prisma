@@ -70,6 +70,11 @@ model Tenant {
   reviews      Review[]
   customFields CustomField[]
   customValues CustomValue[]
+  country            String        @default("US")
+  subscriptionPlan   String        @default("FREE") @map("subscription_plan")
+  subscriptionStatus String        @default("ACTIVE") @map("subscription_status")
+  subscriptionId     String?       @map("subscription_id")
+  billingProvider    String?       @map("billing_provider")
 
   @@map("tenants")
 }

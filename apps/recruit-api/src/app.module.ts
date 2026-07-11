@@ -13,10 +13,25 @@ import { InterviewsModule } from './interviews/interviews.module';
 import { ReviewsModule } from './reviews/reviews.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { CustomFieldsModule } from './custom-fields/custom-fields.module';
+import { BillingModule } from './billing/billing.module';
 import { TenantMiddleware } from './common/middleware/tenant.middleware';
 
 @Module({
-  imports: [PrismaModule, AuthModule, OnboardingModule, JobsModule, CandidatesModule, ApplicationsModule, AiModule, S3Module, InterviewsModule, ReviewsModule, NotificationsModule, CustomFieldsModule],
+  imports: [
+    PrismaModule,
+    AuthModule,
+    OnboardingModule,
+    JobsModule,
+    CandidatesModule,
+    ApplicationsModule,
+    AiModule,
+    S3Module,
+    InterviewsModule,
+    ReviewsModule,
+    NotificationsModule,
+    CustomFieldsModule,
+    BillingModule
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
