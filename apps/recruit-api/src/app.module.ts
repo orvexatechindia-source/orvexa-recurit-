@@ -11,10 +11,11 @@ import { AiModule } from './ai/ai.module';
 import { S3Module } from './s3/s3.module';
 import { InterviewsModule } from './interviews/interviews.module';
 import { ReviewsModule } from './reviews/reviews.module';
+import { NotificationsModule } from './notifications/notifications.module';
 import { TenantMiddleware } from './common/middleware/tenant.middleware';
 
 @Module({
-  imports: [PrismaModule, AuthModule, OnboardingModule, JobsModule, CandidatesModule, ApplicationsModule, AiModule, S3Module, InterviewsModule, ReviewsModule],
+  imports: [PrismaModule, AuthModule, OnboardingModule, JobsModule, CandidatesModule, ApplicationsModule, AiModule, S3Module, InterviewsModule, ReviewsModule, NotificationsModule],
   controllers: [AppController],
   providers: [AppService],
 })

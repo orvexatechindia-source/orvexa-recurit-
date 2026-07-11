@@ -4,6 +4,8 @@ import { ApplyJobDto } from './dto/candidates.dto';
 import { ApplicationStatus } from '@prisma/client';
 import { AiService } from '../ai/ai.service';
 import { S3Service } from '../s3/s3.service';
+import { SesService } from '../notifications/ses.service';
+import { getApplicationConfirmationTemplate } from '@orvexa/notifications';
 import * as fs from 'fs';
 
 @Injectable()
@@ -11,7 +13,8 @@ export class CandidatesService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly aiService: AiService,
-    private readonly s3Service: S3Service
+    private readonly s3Service: S3Service,
+    private readonly sesService: SesService
   ) {}
 
   async apply(dto: ApplyJobDto, file: any, tenantId: string) {
@@ -116,6 +119,20 @@ export class CandidatesService {
         job: true,
       },
     });
+
+    // Send application confirmation email alert
+    try {
+      const template = getApplicationConfirmationTemplate(
+        `${candidate.firstName} ${candidate.lastName}`,
+        application.job.title,
+        'Orvexatech'
+      );
+      template.to = candidate.email;
+      template.tenantId = tenantId;
+      await this.sesService.sendEmail(template);
+    } catch (err: any) {
+      console.warn('Failed to send application confirmation email:', err.message || err);
+    }
 
     return {
       message: 'Application submitted successfully.',

@@ -2,10 +2,15 @@ import { Injectable, NotFoundException, BadRequestException, ForbiddenException 
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateInterviewDto } from './dto/create-interview.dto';
 import { InterviewStatus } from '@prisma/client';
+import { SesService } from '../notifications/ses.service';
+import { getInterviewInvitationTemplate } from '@orvexa/notifications';
 
 @Injectable()
 export class InterviewsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly sesService: SesService
+  ) {}
 
   // 1. Schedule Interview
   async create(dto: CreateInterviewDto, tenantId: string) {
@@ -19,7 +24,7 @@ export class InterviewsService {
     // Verify application exists and belongs to this tenant
     const app = await this.prisma.application.findUnique({
       where: { id: dto.applicationId },
-      include: { candidate: true }
+      include: { candidate: true, job: true }
     });
     if (!app || app.tenantId !== tenantId) {
       throw new NotFoundException('Application not found inside this workspace.');
@@ -73,6 +78,21 @@ export class InterviewsService {
         }
       }
     });
+
+    // Send interview invitation email alert to candidate
+    try {
+      const template = getInterviewInvitationTemplate(
+        `${app.candidate.firstName} ${app.candidate.lastName}`,
+        app.job.title,
+        'Orvexatech',
+        finalMeetingUrl
+      );
+      template.to = app.candidate.email;
+      template.tenantId = tenantId;
+      await this.sesService.sendEmail(template);
+    } catch (err: any) {
+      console.warn('Failed to send interview invitation email:', err.message || err);
+    }
 
     console.log(`[INTERVIEW-SCHEDULED] Created interview ${interview.id} for candidate ${app.candidate.email}`);
     return interview;
