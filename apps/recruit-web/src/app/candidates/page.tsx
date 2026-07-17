@@ -247,7 +247,7 @@ export default function CandidatesPage() {
                   type="button"
                   size="sm"
                   onClick={triggerFilterSearch}
-                  className="h-9 px-4.5 text-xs bg-slate-900 hover:bg-slate-855 text-white font-bold"
+                  className="h-9 px-4.5 text-xs bg-slate-900 hover:bg-slate-800 text-white font-bold"
                 >
                   Apply Filters
                 </Button>

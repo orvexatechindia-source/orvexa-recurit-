@@ -114,7 +114,7 @@ export default function HomePage() {
                     <button
                       type="button"
                       onClick={() => setOpenFaq(isOpen ? null : index)}
-                      className="w-full flex items-center justify-between text-left font-bold text-slate-850 dark:text-slate-200 text-sm py-3 focus:outline-none cursor-pointer bg-transparent border-0"
+                      className="w-full flex items-center justify-between text-left font-bold text-slate-800 dark:text-slate-200 text-sm py-3 focus:outline-none cursor-pointer bg-transparent border-0"
                     >
                       <span>{faq.q}</span>
                       <span className="text-slate-400 text-lg">{isOpen ? '−' : '+'}</span>
@@ -141,7 +141,7 @@ export default function HomePage() {
             </div>
             
             <div className="space-y-3 text-left">
-              <h4 className="font-bold text-slate-705 dark:text-slate-300">Integrations</h4>
+              <h4 className="font-bold text-slate-700 dark:text-slate-300">Integrations</h4>
               <ul className="space-y-2 text-slate-500">
                 <li>Slack Integration</li>
                 <li>LinkedIn XML Sync</li>
@@ -151,7 +151,7 @@ export default function HomePage() {
             </div>
 
             <div className="space-y-3 text-left">
-              <h4 className="font-bold text-slate-705 dark:text-slate-300">Compliance</h4>
+              <h4 className="font-bold text-slate-700 dark:text-slate-300">Compliance</h4>
               <ul className="space-y-2 text-slate-500">
                 <li>GDPR Readiness</li>
                 <li>Data Isolation bounds</li>
@@ -161,7 +161,7 @@ export default function HomePage() {
             </div>
 
             <div className="space-y-3 text-left">
-              <h4 className="font-bold text-slate-705 dark:text-slate-300">Quick Links</h4>
+              <h4 className="font-bold text-slate-700 dark:text-slate-300">Quick Links</h4>
               <ul className="space-y-2 text-slate-500">
                 <li>Anti-spam policy</li>
                 <li>Terms of Service</li>

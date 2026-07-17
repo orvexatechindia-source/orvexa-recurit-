@@ -49,7 +49,7 @@ export const MarketingFeatures: React.FC = () => {
               Accelerate pipeline workflows and reduce manual screening time. Native Google Gemini AI handles complex parsing, profiles classification, score reviews, and custom interviewer questions instantly.
             </p>
 
-            <ul className="space-y-3.5 text-xs text-slate-650 dark:text-slate-350">
+            <ul className="space-y-3.5 text-xs text-slate-600 dark:text-slate-400">
               <li className="flex items-start space-x-2.5">
                 <Check className="h-4 w-4 text-[#2563EB] mt-0.5 shrink-0" />
                 <span>**Intelligent Scoring**: Review suitability ratings based on high-context skill mapping.</span>

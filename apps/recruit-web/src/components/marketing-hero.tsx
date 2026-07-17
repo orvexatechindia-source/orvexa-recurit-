@@ -84,7 +84,7 @@ export const MarketingHero: React.FC = () => {
           <button 
             type="button"
             onClick={() => router.push('/login')}
-            className="text-sm font-bold text-slate-600 dark:text-slate-355 hover:text-[#2563EB] dark:hover:text-white transition-all cursor-pointer bg-transparent border-0"
+            className="text-sm font-bold text-slate-600 dark:text-slate-300 hover:text-[#2563EB] dark:hover:text-white transition-all cursor-pointer bg-transparent border-0"
           >
             Log In
           </button>
@@ -117,7 +117,7 @@ export const MarketingHero: React.FC = () => {
 
           {/* Lead conversion card */}
           <form onSubmit={handleSignupSubmit} className="bg-white dark:bg-[#111827] p-6 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-md space-y-4 max-w-lg w-full">
-            <h3 className="font-bold text-slate-855 dark:text-slate-200 text-sm">Start your 90-day free trial</h3>
+            <h3 className="font-bold text-slate-800 dark:text-slate-200 text-sm">Start your 90-day free trial</h3>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1">
@@ -169,7 +169,7 @@ export const MarketingHero: React.FC = () => {
               <button
                 type="button"
                 onClick={() => window.location.href = 'mailto:sales@orvexarecruit.com?subject=Book a Demo Request - Orvexa Recruit'}
-                className="w-full sm:w-auto px-6 h-11 border border-slate-250 dark:border-slate-850 hover:bg-slate-50 dark:hover:bg-slate-900 text-xs font-bold rounded-lg cursor-pointer flex items-center justify-center text-slate-800 dark:text-slate-200 bg-transparent"
+                className="w-full sm:w-auto px-6 h-11 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900 text-xs font-bold rounded-lg cursor-pointer flex items-center justify-center text-slate-800 dark:text-slate-200 bg-transparent"
               >
                 Request Demo
               </button>
@@ -228,7 +228,7 @@ export const MarketingHero: React.FC = () => {
                   {/* Extracted skills tags */}
                   <div className="flex flex-wrap gap-1">
                     {['TypeScript', 'Next.js', 'PostgreSQL', 'AWS', 'Docker'].map((s, idx) => (
-                      <span key={idx} className="text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-650 dark:text-slate-400 px-2 py-0.5 rounded font-medium">
+                      <span key={idx} className="text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 px-2 py-0.5 rounded font-medium">
                         {s}
                       </span>
                     ))}
@@ -253,12 +253,12 @@ export const MarketingHero: React.FC = () => {
               {currentTab.mockup.type === 'esign' && (
                 <div className="space-y-3 pt-2">
                   <div className="p-4 bg-blue-50/30 dark:bg-blue-955/10 border border-blue-150 dark:border-blue-900/40 rounded-2xl space-y-2">
-                    <div className="flex items-center justify-between text-[11px] font-bold text-slate-700 dark:text-slate-250">
+                    <div className="flex items-center justify-between text-[11px] font-bold text-slate-700 dark:text-slate-200">
                       <span>Offer Contract: {currentTab.mockup.name}</span>
                       <span className="text-[9px] bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded uppercase font-bold">Signed & Accepted</span>
                     </div>
                     <div className="mt-2 p-3 bg-white dark:bg-slate-950 border border-slate-100 dark:border-slate-900 rounded-xl flex items-center justify-center">
-                      <span className="font-serif italic text-xl text-slate-750 dark:text-slate-355 font-medium tracking-wide select-none" style={{ fontFamily: 'Georgia, cursive' }}>
+                      <span className="font-serif italic text-xl text-slate-750 dark:text-slate-300 font-medium tracking-wide select-none" style={{ fontFamily: 'Georgia, cursive' }}>
                         {currentTab.mockup.name}
                       </span>
                     </div>
@@ -286,20 +286,20 @@ export const MarketingHero: React.FC = () => {
 
       {/* Trust Metrics ratings grid */}
       <div className="max-w-7xl mx-auto px-6 py-12 border-t border-slate-200/50 dark:border-slate-800/60 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 text-center">
-        <div className="p-5 bg-white dark:bg-slate-900/20 border border-slate-200/40 dark:border-slate-850 rounded-2xl flex flex-col justify-between items-center h-full">
+        <div className="p-5 bg-white dark:bg-slate-900/20 border border-slate-200/40 dark:border-slate-800 rounded-2xl flex flex-col justify-between items-center h-full">
           <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest block">G2 Crowd 2026</span>
           <span className="text-sm font-bold text-slate-900 dark:text-white my-2.5">High Performer</span>
           <div className="flex items-center space-x-1">
-            <span className="text-base font-extrabold text-slate-850 dark:text-slate-200">4.8</span>
+            <span className="text-base font-extrabold text-slate-800 dark:text-slate-200">4.8</span>
             <div className="flex text-amber-500"><Star className="h-3.5 w-3.5 fill-current" /></div>
           </div>
         </div>
 
-        <div className="p-5 bg-white dark:bg-slate-900/20 border border-slate-200/40 dark:border-slate-850 rounded-2xl flex flex-col justify-between items-center h-full">
+        <div className="p-5 bg-white dark:bg-slate-900/20 border border-slate-200/40 dark:border-slate-800 rounded-2xl flex flex-col justify-between items-center h-full">
           <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest block">Capterra 2026</span>
           <span className="text-sm font-bold text-slate-900 dark:text-white my-2.5">Shortlist Leader</span>
           <div className="flex items-center space-x-1">
-            <span className="text-base font-extrabold text-slate-850 dark:text-slate-200">4.7</span>
+            <span className="text-base font-extrabold text-slate-800 dark:text-slate-200">4.7</span>
             <div className="flex text-amber-500"><Star className="h-3.5 w-3.5 fill-current" /></div>
           </div>
         </div>
@@ -308,16 +308,16 @@ export const MarketingHero: React.FC = () => {
           <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest block">Software Advice 2026</span>
           <span className="text-sm font-bold text-slate-900 dark:text-white my-2.5">Front Runners</span>
           <div className="flex items-center space-x-1">
-            <span className="text-base font-extrabold text-slate-850 dark:text-slate-200">4.6</span>
+            <span className="text-base font-extrabold text-slate-800 dark:text-slate-200">4.6</span>
             <div className="flex text-amber-500"><Star className="h-3.5 w-3.5 fill-current" /></div>
           </div>
         </div>
 
-        <div className="p-5 bg-white dark:bg-slate-900/20 border border-slate-200/40 dark:border-slate-850 rounded-2xl flex flex-col justify-between items-center h-full">
+        <div className="p-5 bg-white dark:bg-slate-900/20 border border-slate-200/40 dark:border-slate-800 rounded-2xl flex flex-col justify-between items-center h-full">
           <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest block">GetApp 2026</span>
           <span className="text-sm font-bold text-slate-900 dark:text-white my-2.5">Category Leader</span>
           <div className="flex items-center space-x-1">
-            <span className="text-base font-extrabold text-slate-850 dark:text-slate-200">4.9</span>
+            <span className="text-base font-extrabold text-slate-800 dark:text-slate-200">4.9</span>
             <div className="flex text-amber-500"><Star className="h-3.5 w-3.5 fill-current" /></div>
           </div>
         </div>

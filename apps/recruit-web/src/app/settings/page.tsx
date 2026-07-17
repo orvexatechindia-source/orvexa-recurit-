@@ -722,7 +722,7 @@ export default function SettingsPage() {
               <div className="text-center py-20 bg-slate-50/50 dark:bg-slate-900/10 border border-dashed border-slate-200 dark:border-slate-800 rounded-2xl">
                 <LayoutGrid className="h-10 w-10 text-slate-300 mx-auto mb-3" />
                 <h4 className="text-sm font-bold text-slate-700 dark:text-slate-350">No custom fields defined</h4>
-                <p className="text-xs text-slate-555 mt-1 max-w-sm mx-auto">Create customized fields on the left to request additional data from applicants.</p>
+                <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">Create customized fields on the left to request additional data from applicants.</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
