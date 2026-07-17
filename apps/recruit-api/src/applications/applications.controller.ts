@@ -21,6 +21,7 @@ export class ApplicationsController {
   ) {
     const tenantId = req.tenantId;
     const result = await this.applicationsService.findAll(tenantId, jobId);
+    return createSuccessResponse(result);
   }
 
   // 3. Fetch Single Application Details (AI summaries, gaps, and suggested questions)
