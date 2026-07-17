@@ -201,7 +201,12 @@ export class InterviewsService {
 
   async findTeam(tenantId: string) {
     return this.prisma.user.findMany({
-      where: { tenantId },
+      where: {
+        tenantId,
+        role: {
+          not: 'SUPER_ADMIN',
+        },
+      },
       select: {
         id: true,
         name: true,
