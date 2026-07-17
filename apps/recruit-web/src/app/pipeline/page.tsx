@@ -78,6 +78,7 @@ interface Application {
   offerLetter?: string;
   offerStatus?: string;
   signedAt?: string;
+  signature?: string;
 }
 
 const STAGES = [
@@ -994,6 +995,18 @@ export default function PipelinePage() {
                           ? 'Declined by candidate'
                           : 'Awaiting candidate response inside applicant portal'}
                       </p>
+                      {selectedApp.offerStatus === 'ACCEPTED' && selectedApp.signature && (
+                        <div className="mt-3 p-3 border border-dashed border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0B1220] rounded-xl flex flex-col items-center">
+                          <span className="text-[8px] text-slate-400 uppercase tracking-wider font-bold mb-1.5 font-display">Candidate Signature Record</span>
+                          {selectedApp.signature.startsWith('data:image/') ? (
+                            <img src={selectedApp.signature} alt="Candidate Signature" className="max-h-10 object-contain" />
+                          ) : (
+                            <span className="font-serif italic text-lg select-none text-slate-750 dark:text-slate-300" style={{ fontFamily: 'Georgia, cursive' }}>
+                              {selectedApp.signature}
+                            </span>
+                          )}
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>

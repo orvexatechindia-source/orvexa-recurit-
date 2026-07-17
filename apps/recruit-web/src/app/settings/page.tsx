@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../context/auth-context';
 import { DashboardLayout } from '../../components/dashboard-layout';
 import { Button, Card, CardHeader, CardTitle, CardDescription, CardContent } from '@orvexa/ui';
-import { Settings, Plus, LayoutGrid, CheckSquare, Award, ArrowRight, ToggleLeft, ListFilter, CreditCard, Check, ShieldAlert, Sparkles, Trash2 } from 'lucide-react';
+import { Settings, Plus, LayoutGrid, CheckSquare, Award, ArrowRight, ToggleLeft, ListFilter, CreditCard, Check, ShieldAlert, Sparkles, Trash2, GripVertical } from 'lucide-react';
 
 interface CustomField {
   id: string;
@@ -156,6 +156,33 @@ export default function SettingsPage() {
       console.error(err);
       alert(err.message || 'Failed to delete custom field.');
     }
+  };
+
+  const [draggedIdx, setDraggedIdx] = useState<number | null>(null);
+
+  const handleDragStart = (e: React.DragEvent, index: number) => {
+    setDraggedIdx(index);
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/html', '');
+  };
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+  };
+
+  const handleDrop = (e: React.DragEvent, targetIndex: number) => {
+    e.preventDefault();
+    if (draggedIdx === null || draggedIdx === targetIndex) return;
+
+    const reordered = [...fields];
+    const [removed] = reordered.splice(draggedIdx, 1);
+    reordered.splice(targetIndex, 0, removed);
+    setFields(reordered);
+    setDraggedIdx(null);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedIdx(null);
   };
 
   // Switch Country (Triggers Gateway router redirect criteria)
@@ -699,24 +726,39 @@ export default function SettingsPage() {
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {fields.map((field) => (
-                  <div key={field.id} className="p-4 bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-800 rounded-xl flex items-center justify-between gap-4">
-                    <div className="space-y-1">
-                      <h4 className="font-bold text-slate-900 dark:text-white text-xs">{field.fieldName}</h4>
-                      <div className="flex items-center space-x-1.5">
-                        <span className="text-[10px] text-[#2563EB] font-bold bg-blue-50 dark:bg-blue-950/20 px-2 py-0.5 rounded uppercase">
-                          {field.fieldType}
-                        </span>
-                        {field.options && field.options.length > 0 && (
-                          <span className="text-[9px] text-slate-400 font-medium">
-                            ({field.options.length} options)
+                {fields.map((field, idx) => (
+                  <div 
+                    key={field.id}
+                    draggable="true"
+                    onDragStart={(e) => handleDragStart(e, idx)}
+                    onDragOver={(e) => handleDragOver(e, idx)}
+                    onDragEnd={handleDragEnd}
+                    onDrop={(e) => handleDrop(e, idx)}
+                    className={`p-4 bg-card border border-slate-200 dark:border-slate-800 rounded-xl flex items-center justify-between gap-4 transition-all duration-150 cursor-grab active:cursor-grabbing ${
+                      draggedIdx === idx ? 'opacity-40 border-dashed border-blue-500 scale-95' : 'hover:border-blue-300 dark:hover:border-blue-800'
+                    }`}
+                  >
+                    <div className="flex items-center space-x-2.5 min-w-0">
+                      <div className="text-slate-400 cursor-grab shrink-0">
+                        <GripVertical className="h-4 w-4" />
+                      </div>
+                      <div className="space-y-0.5">
+                        <h4 className="font-bold text-slate-900 dark:text-white text-xs truncate max-w-[150px]">{field.fieldName}</h4>
+                        <div className="flex items-center space-x-1.5">
+                          <span className="text-[10px] text-[#2563EB] font-bold bg-blue-50 dark:bg-blue-955/20 px-1.5 py-0.5 rounded uppercase">
+                            {field.fieldType}
                           </span>
-                        )}
+                          {field.options && field.options.length > 0 && (
+                            <span className="text-[8px] text-slate-400 font-medium">
+                              ({field.options.length} options)
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
 
                     <div className="flex items-center space-x-2">
-                      <div className="p-2 bg-slate-50 dark:bg-slate-800 rounded-lg text-slate-400">
+                      <div className="p-2 bg-slate-50 dark:bg-slate-850 rounded-lg text-slate-400">
                         {field.fieldType === 'BOOLEAN' ? (
                           <ToggleLeft className="h-4.5 w-4.5" />
                         ) : field.fieldType === 'DROPDOWN' ? (
@@ -729,7 +771,7 @@ export default function SettingsPage() {
                       </div>
                       <button
                         onClick={() => handleDeleteField(field.id)}
-                        className="p-1.5 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg transition-colors cursor-pointer"
+                        className="p-1.5 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-955/20 rounded-lg transition-colors cursor-pointer"
                         title="Delete custom field"
                       >
                         <Trash2 className="h-4 w-4" />

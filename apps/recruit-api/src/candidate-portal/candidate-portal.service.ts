@@ -127,7 +127,7 @@ export class CandidatePortalService {
     });
   }
 
-  async updateOfferStatus(applicationId: string, email: string, tenantId: string, status: 'ACCEPTED' | 'DECLINED') {
+  async updateOfferStatus(applicationId: string, email: string, tenantId: string, status: 'ACCEPTED' | 'DECLINED', signature?: string) {
     // Validate candidate owns this application
     const application = await this.prisma.application.findFirst({
       where: {
@@ -155,6 +155,7 @@ export class CandidatePortalService {
       data: {
         offerStatus: status,
         signedAt: status === 'ACCEPTED' ? new Date() : null,
+        signature: status === 'ACCEPTED' ? signature : null,
         status: status === 'ACCEPTED' ? 'OFFER' : 'REJECTED', // Update stage tracker accordingly
       },
     });

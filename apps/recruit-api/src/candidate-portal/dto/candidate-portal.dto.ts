@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsEmail, IsIn } from 'class-validator';
+import { IsString, IsNotEmpty, IsEmail, IsIn, IsOptional } from 'class-validator';
 
 export class RequestPasscodeDto {
   @IsEmail()
@@ -29,6 +29,10 @@ export class UpdateOfferStatusDto {
   @IsNotEmpty()
   @IsIn(['ACCEPTED', 'DECLINED'])
   status!: 'ACCEPTED' | 'DECLINED';
+
+  @IsOptional()
+  @IsString()
+  signature?: string;
 }
 
 export class ExtendOfferDto {

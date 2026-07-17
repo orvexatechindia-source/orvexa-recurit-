@@ -23,7 +23,7 @@
   --color-foreground: var(--foreground);
   --color-primary: var(--primary);
   --color-primary-hover: var(--primary-hover);
-  --font-sans: var(--font-outfit);
+  --font-sans: var(--font-plus-jakarta-sans);
   --font-display: var(--font-space-grotesk);
 }
 

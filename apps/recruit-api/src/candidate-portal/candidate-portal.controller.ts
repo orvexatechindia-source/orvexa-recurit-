@@ -45,7 +45,7 @@ export class CandidatePortalController {
   ) {
     const email = req.user.email;
     const tenantId = req.user.tenantId;
-    const result = await this.candidatePortalService.updateOfferStatus(id, email, tenantId, dto.status);
+    const result = await this.candidatePortalService.updateOfferStatus(id, email, tenantId, dto.status, dto.signature);
     return createSuccessResponse(result);
   }
 

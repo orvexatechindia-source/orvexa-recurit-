@@ -156,6 +156,7 @@ model Application {
   offerLetter        String?           @map("offer_letter")
   offerStatus        String?           @map("offer_status") // "EXTENDED", "ACCEPTED", "DECLINED"
   signedAt           DateTime?         @map("signed_at")
+  signature          String?           @map("signature")
 
   @@index([tenantId])
   @@index([jobId])
