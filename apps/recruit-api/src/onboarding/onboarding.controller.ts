@@ -5,12 +5,14 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RbacGuard } from '../auth/guards/rbac.guard';
 import { RequirePermissions } from '../auth/decorators/permissions.decorator';
 import { PERMISSIONS } from '@orvexa/auth';
+import { RateLimiterGuard } from '../common/guards/rate-limiter.guard';
 
 @Controller('api/v1/onboarding')
 export class OnboardingController {
   constructor(private readonly onboardingService: OnboardingService) {}
 
   @Post()
+  @UseGuards(RateLimiterGuard)
   async onboard(@Body() body: OnboardTenantDto) {
     const result = await this.onboardingService.onboard(body);
     return createSuccessResponse(result);
