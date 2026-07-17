@@ -97,7 +97,13 @@ export const MarketingPricing: React.FC = () => {
               </CardContent>
               <CardFooter className="pt-8">
                 <Button 
-                  onClick={() => router.push('/register')}
+                  onClick={() => {
+                    if (plan.price === 'Custom') {
+                      window.location.href = 'mailto:sales@orvexarecruit.com?subject=Enterprise Plan Inquiry - Orvexa Recruit';
+                    } else {
+                      router.push('/register');
+                    }
+                  }}
                   variant={plan.popular ? 'primary' : 'outline'} 
                   className="w-full bg-[#046bd2] hover:bg-[#045cb4]"
                 >

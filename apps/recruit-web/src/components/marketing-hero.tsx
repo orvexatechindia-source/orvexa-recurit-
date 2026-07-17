@@ -121,7 +121,7 @@ export const MarketingHero: React.FC = () => {
             <Button 
               variant="outline" 
               size="lg" 
-              onClick={() => alert('Demo booking form is active! Please use "Start Free Trial" to register instantly.')}
+              onClick={() => window.location.href = 'mailto:sales@orvexarecruit.com?subject=Book a Demo Request - Orvexa Recruit'}
               className="w-full sm:w-auto rounded-full border-slate-300 dark:border-slate-700 bg-white/50 dark:bg-slate-900/50 text-[#2E2C2A] dark:text-white font-bold px-8 h-12"
             >
               Book a Demo
