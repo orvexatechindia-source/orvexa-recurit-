@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@orvexa/ui';
-import { Sparkles, ArrowRight, ShieldCheck, Cpu, Check, Users, Kanban, Settings } from 'lucide-react';
+import { Sparkles, ArrowRight, ShieldCheck, Cpu, Star, Check, Award } from 'lucide-react';
 
 const TABS = [
   {
@@ -17,10 +17,6 @@ const TABS = [
       name: 'Sarah Jenkins',
       title: 'Principal Full Stack Developer',
       skills: ['TypeScript', 'Next.js', 'PostgreSQL', 'AWS', 'Docker'],
-      questions: [
-        'How do you manage complex DB schema migrations in team environments?',
-        'Describe your experience configuring multi-tenant boundary middlewares.'
-      ]
     }
   },
   {
@@ -38,17 +34,14 @@ const TABS = [
     }
   },
   {
-    id: 'compliance',
-    label: 'Global Compliance',
-    title: 'Strict Data Isolation & GDPR Sanitization',
-    description: 'Run secure recruiting operations across international regions. Benefit from automated tenant isolation bounds, PII encryption at rest, and one-click compliance deletion tools for global privacy regulations.',
+    id: 'e-sign',
+    label: 'E-Sign Offers',
+    title: 'Secure Contract Acceptance & Hand-drawn E-Signatures',
+    description: 'Extend formal offers with dynamic cursive or mouse-drawn signature canvases. Legally binding agreement checkboxes simplify offer contracts without third-party integrations.',
     mockup: {
-      type: 'compliance',
-      logs: [
-        { action: 'ENCRYPT_PII', status: 'Secure', label: 'Candidate records encrypted' },
-        { action: 'TENANT_CHECK', status: 'Passed', label: 'Logical query boundaries enforced' },
-        { action: 'COMPLIANCE_PURGE', status: 'Ready', label: 'One-click candidate audit deletion' }
-      ]
+      type: 'esign',
+      name: 'Sarah Jenkins',
+      date: 'July 17, 2026',
     }
   }
 ];
@@ -56,13 +49,19 @@ const TABS = [
 export const MarketingHero: React.FC = () => {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('ai-parser');
+  const [hiringAs, setHiringAs] = useState('Corporate HRs');
   const [emailInput, setEmailInput] = useState('');
+  const [agreeCheck, setAgreeCheck] = useState(false);
 
   const currentTab = TABS.find(t => t.id === activeTab) || TABS[0];
 
-  const handleSignupRedirect = (e: React.FormEvent) => {
+  const handleSignupSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    router.push(`/register?email=${encodeURIComponent(emailInput)}`);
+    if (!agreeCheck) {
+      alert("Please agree to the Terms of Service and Privacy Policy.");
+      return;
+    }
+    router.push(`/register?email=${encodeURIComponent(emailInput)}&hiringAs=${hiringAs}`);
   };
 
   return (
@@ -83,8 +82,9 @@ export const MarketingHero: React.FC = () => {
         
         <div className="flex items-center space-x-6">
           <button 
+            type="button"
             onClick={() => router.push('/login')}
-            className="text-sm font-bold text-slate-600 dark:text-slate-350 hover:text-[#2563EB] dark:hover:text-white transition-all cursor-pointer"
+            className="text-sm font-bold text-slate-600 dark:text-slate-355 hover:text-[#2563EB] dark:hover:text-white transition-all cursor-pointer bg-transparent border-0"
           >
             Log In
           </button>
@@ -98,76 +98,93 @@ export const MarketingHero: React.FC = () => {
       </header>
 
       {/* Hero Body Content */}
-      <div className="relative max-w-7xl mx-auto px-6 pt-16 pb-24 sm:pt-24 sm:pb-32 flex flex-col lg:flex-row items-center gap-16 z-10">
+      <div className="relative max-w-7xl mx-auto px-6 pt-12 pb-20 sm:pt-16 sm:pb-24 flex flex-col lg:flex-row items-center gap-16 z-10">
         
-        {/* Slogans & Buttons */}
-        <div className="flex-1 text-center lg:text-left space-y-6 max-w-2xl">
+        {/* Slogans & Booking Form */}
+        <div className="flex-1 space-y-6 max-w-2xl text-left">
           <div className="inline-flex items-center space-x-2 bg-[#2563EB]/10 dark:bg-[#2563EB]/20 px-4 py-1.5 rounded-full text-xs font-bold text-[#2563EB] dark:text-cyan-400">
             <Sparkles className="h-3.5 w-3.5" />
             <span>AI-POWERED RECRUITING & TALENT MANAGEMENT</span>
           </div>
 
-          <h1 className="text-4xl sm:text-5xl lg:text-6.5xl font-extrabold tracking-tight text-slate-900 dark:text-white font-display leading-[1.1] font-serif">
-            The all-in-one hiring platform for <span className="text-[#2563EB] dark:text-cyan-400">growing businesses.</span>
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-900 dark:text-white font-display leading-[1.1] font-serif">
+            Celebrate growth with every new hire.
           </h1>
 
           <p className="text-base sm:text-lg text-slate-500 dark:text-slate-400 leading-relaxed font-sans">
-            Orvexa Recruit helps you source, parse, rank, and hire the best talent globally. Integrate your pipelines, schedule interviews automatically, and ensure strict compliance in one unified system.
+            Say hello to your AI-powered, automation-friendly and all-things-recruitment tool - Orvexa Recruit. Source, parse, and track top talent.
           </p>
 
-          {/* Zoho-style instant email signup form block */}
-          <div className="space-y-4 pt-4">
-            <form onSubmit={handleSignupRedirect} className="flex flex-col sm:flex-row items-center gap-3 max-w-lg">
-              <input
-                type="email"
-                required
-                placeholder="Enter your work email address"
-                value={emailInput}
-                onChange={(e) => setEmailInput(e.target.value)}
-                className="w-full h-12 px-4 rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB] placeholder-slate-400 text-slate-900 dark:text-white"
-              />
-              <Button 
+          {/* Detailed lead-conversion card */}
+          <form onSubmit={handleSignupSubmit} className="bg-white dark:bg-[#111827] p-6 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-md space-y-4 max-w-lg w-full">
+            <h3 className="font-bold text-slate-850 dark:text-slate-200 text-sm">Start your 15-day free trial</h3>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-slate-400 uppercase">Hiring As</label>
+                <select
+                  value={hiringAs}
+                  onChange={(e) => setHiringAs(e.target.value)}
+                  className="w-full h-10 px-3 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0B1220] text-xs text-slate-900 dark:text-white focus:outline-none"
+                >
+                  <option value="Corporate HRs">Corporate HRs</option>
+                  <option value="Staffing Agency">Staffing Agency</option>
+                </select>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-slate-400 uppercase">Work Email</label>
+                <input
+                  type="email"
+                  required
+                  placeholder="name@company.com"
+                  value={emailInput}
+                  onChange={(e) => setEmailInput(e.target.value)}
+                  className="w-full h-10 px-3 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0B1220] text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-[#2563EB]"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="flex items-start space-x-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={agreeCheck}
+                  onChange={(e) => setAgreeCheck(e.target.checked)}
+                  className="mt-0.5 rounded border-slate-300 text-[#2563EB] focus:ring-[#2563EB]"
+                />
+                <span className="text-[9px] text-slate-400 leading-tight select-none">
+                  I agree to the Terms of Service and Privacy Policy. Your data will be stored securely under tenant boundary standards.
+                </span>
+              </label>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-3 pt-2">
+              <Button
                 type="submit"
-                size="lg" 
-                className="w-full sm:w-auto rounded-full bg-[#2563EB] hover:bg-blue-700 text-white font-bold px-8 h-12 flex items-center justify-center space-x-2 shrink-0 shadow-lg shadow-blue-500/10 cursor-pointer"
+                className="w-full bg-[#2563EB] hover:bg-blue-700 text-white font-bold h-11 text-xs rounded-lg cursor-pointer flex items-center justify-center"
               >
-                <span>Sign Up Free</span>
-                <ArrowRight className="h-4 w-4" />
+                Start Free Trial
               </Button>
-            </form>
-            <div className="flex items-center justify-center lg:justify-start space-x-3 text-xs text-slate-500">
-              <span>No credit card required.</span>
-              <span>•</span>
-              <button 
+              <button
                 type="button"
                 onClick={() => window.location.href = 'mailto:sales@orvexarecruit.com?subject=Book a Demo Request - Orvexa Recruit'}
-                className="font-bold text-[#2563EB] hover:underline cursor-pointer"
+                className="w-full sm:w-auto px-6 h-11 border border-slate-250 dark:border-slate-850 hover:bg-slate-50 dark:hover:bg-slate-900 text-xs font-bold rounded-lg cursor-pointer flex items-center justify-center text-slate-800 dark:text-slate-200 bg-transparent"
               >
-                Book a Demo
+                Request Demo
               </button>
             </div>
-          </div>
-
-          {/* Compliance features badges */}
-          <div className="flex flex-wrap items-center justify-center lg:justify-start gap-6 pt-6 text-xs text-slate-400">
-            <div className="flex items-center space-x-2">
-              <ShieldCheck className="h-4 w-4 text-[#2563EB] dark:text-cyan-400" />
-              <span>GDPR & PII Secure</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Cpu className="h-4 w-4 text-[#2563EB] dark:text-cyan-400" />
-              <span>Gemini 1.5 Pro Matching</span>
-            </div>
-          </div>
+          </form>
         </div>
 
-        {/* Visual Mockup - Interactive Tabs Display (like Gusto's product tour) */}
+        {/* Visual Mockup - Interactive Tabs Display */}
         <div className="flex-1 w-full max-w-xl relative">
           {/* Tabs header */}
           <div className="flex space-x-2 mb-4 overflow-x-auto pb-2 scrollbar-none">
             {TABS.map(tab => (
               <button
                 key={tab.id}
+                type="button"
                 onClick={() => setActiveTab(tab.id)}
                 className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all border cursor-pointer ${
                   activeTab === tab.id
@@ -195,8 +212,8 @@ export const MarketingHero: React.FC = () => {
                 <div className="space-y-4 pt-2">
                   <div className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-slate-100 dark:border-slate-850 flex items-center justify-between">
                     <div className="flex items-center space-x-3">
-                      <div className="h-10 w-10 rounded-full bg-blue-50 dark:bg-slate-800 flex items-center justify-center font-bold text-[#2563EB]">
-                        {currentTab.mockup.name?.split(' ').map(n => n[0]).join('')}
+                      <div className="h-10 w-10 rounded-full bg-blue-50 dark:bg-slate-850 flex items-center justify-center font-bold text-[#2563EB]">
+                        S
                       </div>
                       <div>
                         <h5 className="text-xs font-bold text-slate-900 dark:text-white">{currentTab.mockup.name}</h5>
@@ -204,14 +221,14 @@ export const MarketingHero: React.FC = () => {
                       </div>
                     </div>
                     <span className="inline-flex items-center rounded-full bg-emerald-50 dark:bg-emerald-950/20 px-2 py-0.5 text-[10px] font-bold text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/50">
-                      {currentTab.mockup.match}% AI Match
+                      94% AI Match
                     </span>
                   </div>
                   
                   {/* Extracted skills tags */}
                   <div className="flex flex-wrap gap-1">
-                    {currentTab.mockup.skills?.map((s, idx) => (
-                      <span key={idx} className="text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 px-2 py-0.5 rounded font-medium">
+                    {['TypeScript', 'Next.js', 'PostgreSQL', 'AWS', 'Docker'].map((s, idx) => (
+                      <span key={idx} className="text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-650 dark:text-slate-400 px-2 py-0.5 rounded font-medium">
                         {s}
                       </span>
                     ))}
@@ -232,18 +249,21 @@ export const MarketingHero: React.FC = () => {
                 </div>
               )}
 
-              {/* Renders Compliance checklists */}
-              {currentTab.mockup.type === 'compliance' && (
-                <div className="space-y-2 pt-2">
-                  {currentTab.mockup.logs?.map((log, idx) => (
-                    <div key={idx} className="flex items-center justify-between p-2.5 bg-slate-50 dark:bg-slate-900/40 rounded-xl text-[11px]">
-                      <div className="flex items-center space-x-2">
-                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                        <span className="font-semibold text-slate-700 dark:text-slate-300">{log.label}</span>
-                      </div>
-                      <span className="text-[9px] bg-emerald-50 text-emerald-700 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">{log.status}</span>
+              {/* Renders E-Sign Offer mockup */}
+              {currentTab.mockup.type === 'esign' && (
+                <div className="space-y-3 pt-2">
+                  <div className="p-4 bg-blue-50/30 dark:bg-blue-955/10 border border-blue-150 dark:border-blue-900/40 rounded-2xl space-y-2">
+                    <div className="flex items-center justify-between text-[11px] font-bold text-slate-700 dark:text-slate-250">
+                      <span>Offer Contract: {currentTab.mockup.name}</span>
+                      <span className="text-[9px] bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded uppercase font-bold">Signed & Accepted</span>
                     </div>
-                  ))}
+                    <div className="mt-2 p-3 bg-white dark:bg-slate-950 border border-slate-100 dark:border-slate-900 rounded-xl flex items-center justify-center">
+                      <span className="font-serif italic text-xl text-slate-750 dark:text-slate-350 font-medium tracking-wide select-none" style={{ fontFamily: 'Georgia, cursive' }}>
+                        {currentTab.mockup.name}
+                      </span>
+                    </div>
+                    <p className="text-[9px] text-slate-400 text-center">Verified signature on {currentTab.mockup.date}</p>
+                  </div>
                 </div>
               )}
             </div>
@@ -262,6 +282,54 @@ export const MarketingHero: React.FC = () => {
           </div>
         </div>
 
+      </div>
+
+      {/* Trust Metrics ratings grid */}
+      <div className="max-w-7xl mx-auto px-6 py-12 border-t border-slate-200/50 dark:border-slate-800/60 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 text-center">
+        <div className="p-5 bg-white dark:bg-slate-900/20 border border-slate-200/40 dark:border-slate-850 rounded-2xl flex flex-col justify-between items-center h-full">
+          <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest block">Crozdesk Award 2026</span>
+          <span className="text-sm font-bold text-slate-900 dark:text-white my-2.5">Quality Choice</span>
+          <div className="flex items-center space-x-1">
+            <span className="text-base font-extrabold text-slate-850 dark:text-slate-200">4.4</span>
+            <div className="flex text-amber-500"><Star className="h-3.5 w-3.5 fill-current" /></div>
+          </div>
+        </div>
+
+        <div className="p-5 bg-white dark:bg-slate-900/20 border border-slate-200/40 dark:border-slate-850 rounded-2xl flex flex-col justify-between items-center h-full">
+          <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest block">Crozdesk Trust 2026</span>
+          <span className="text-sm font-bold text-slate-900 dark:text-white my-2.5">High Market Presence</span>
+          <div className="flex items-center space-x-1">
+            <span className="text-base font-extrabold text-slate-850 dark:text-slate-200">4.4</span>
+            <div className="flex text-amber-500"><Star className="h-3.5 w-3.5 fill-current" /></div>
+          </div>
+        </div>
+
+        <div className="p-5 bg-white dark:bg-slate-900/20 border border-slate-200/40 dark:border-slate-850 rounded-2xl flex flex-col justify-between items-center h-full">
+          <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest block">Software Suggest 2026</span>
+          <span className="text-sm font-bold text-slate-900 dark:text-white my-2.5">Top Performer</span>
+          <div className="flex items-center space-x-1">
+            <span className="text-base font-extrabold text-slate-850 dark:text-slate-200">4.7</span>
+            <div className="flex text-amber-500"><Star className="h-3.5 w-3.5 fill-current" /></div>
+          </div>
+        </div>
+
+        <div className="p-5 bg-white dark:bg-slate-900/20 border border-slate-200/40 dark:border-slate-850 rounded-2xl flex flex-col justify-between items-center h-full">
+          <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest block">Software Advice 2026</span>
+          <span className="text-sm font-bold text-slate-900 dark:text-white my-2.5">Front Runners</span>
+          <div className="flex items-center space-x-1">
+            <span className="text-base font-extrabold text-slate-850 dark:text-slate-200">4.5</span>
+            <div className="flex text-amber-500"><Star className="h-3.5 w-3.5 fill-current" /></div>
+          </div>
+        </div>
+
+        <div className="p-5 bg-white dark:bg-slate-900/20 border border-slate-200/40 dark:border-slate-850 rounded-2xl flex flex-col justify-between items-center h-full">
+          <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest block">Software Suggest UX 2026</span>
+          <span className="text-sm font-bold text-slate-900 dark:text-white my-2.5">User Experience Excellence</span>
+          <div className="flex items-center space-x-1">
+            <span className="text-base font-extrabold text-slate-850 dark:text-slate-200">4.7</span>
+            <div className="flex text-amber-500"><Star className="h-3.5 w-3.5 fill-current" /></div>
+          </div>
+        </div>
       </div>
     </div>
   );

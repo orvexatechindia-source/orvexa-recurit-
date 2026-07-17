@@ -71,17 +71,117 @@ export default function HomePage() {
     );
   }
 
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
+
+  const FAQS = [
+    {
+      q: "What is Orvexa Recruit?",
+      a: "Orvexa Recruit is a cloud-based hiring platform that gives HR teams and recruitment agencies the digital tools needed to fill roles quickly and efficiently. It's free to try, and it requires no local database configuration or software downloads. From parsing candidates with Google Gemini AI to extending secure, electronically signed offer letters, Orvexa helps you manage your entire talent pipeline from a single app."
+    },
+    {
+      q: "What's the difference between an ATS and a recruitment CRM?",
+      a: "An Applicant Tracking System (ATS) manages candidate applications throughout the hiring process. A recruitment CRM is candidate-centric, helping recruiters build and nurture talent pools for future roles. Orvexa Recruit combines both functionalities, giving you an end-to-end CRM-ATS loop."
+    },
+    {
+      q: "Why do I need hiring software for recruitment?",
+      a: "Recruiting manually with spreadsheets and emails leads to slow response times, lost candidate data, and compliance risks. Hiring software automates candidate pipelines, schedules panel interviews, records audit logs, and handles secure digital contract signatures instantly."
+    },
+    {
+      q: "What makes Orvexa Recruit stand out from other service providers?",
+      a: "Unlike legacy platforms that rely on outdated keyword filters, Orvexa Recruit features native Google Gemini AI parsing to score candidates semantically. Additionally, Orvexa offers built-in hand-drawn e-signatures, strict multi-tenant boundary isolation, and instant custom careers pages out of the box."
+    }
+  ];
+
   // If user is NOT logged in, show the Corporate Landing Page (par with iCIMS/Gusto/Zoho)
   if (!user) {
     return (
-      <div className="min-h-screen bg-[#F0F5FA] dark:bg-[#0B1220]">
+      <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#0B1220] transition-colors duration-200">
         <MarketingHero />
         <MarketingFeatures />
         <MarketingPricing />
         
-        {/* Footer */}
-        <footer className="bg-white dark:bg-[#0B1220] py-8 text-center text-xs text-slate-400 border-t border-slate-100 dark:border-slate-800">
-          <p>&copy; {new Date().getFullYear()} Orvexa Recruit. All rights reserved.</p>
+        {/* Dynamic Accordion FAQ Section */}
+        <section className="py-20 bg-white dark:bg-[#0B1220] border-t border-slate-200/50 dark:border-slate-800/60 transition-colors duration-200">
+          <div className="max-w-3xl mx-auto px-6">
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-center text-slate-900 dark:text-white font-display mb-12">
+              Frequently asked questions
+            </h2>
+            
+            <div className="space-y-4">
+              {FAQS.map((faq, index) => {
+                const isOpen = openFaq === index;
+                return (
+                  <div key={index} className="border-b border-slate-200/60 dark:border-slate-800/80 pb-4">
+                    <button
+                      type="button"
+                      onClick={() => setOpenFaq(isOpen ? null : index)}
+                      className="w-full flex items-center justify-between text-left font-bold text-slate-850 dark:text-slate-200 text-sm py-3 focus:outline-none cursor-pointer bg-transparent border-0"
+                    >
+                      <span>{faq.q}</span>
+                      <span className="text-slate-400 text-lg">{isOpen ? '−' : '+'}</span>
+                    </button>
+                    {isOpen && (
+                      <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mt-2 pl-1 whitespace-pre-line">
+                        {faq.a}
+                      </p>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+
+        {/* Corporate Detailed Footer */}
+        <footer className="bg-slate-50 dark:bg-slate-950 py-16 text-xs text-slate-400 border-t border-slate-200 dark:border-slate-850/60 transition-colors">
+          <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
+            <div className="space-y-3.5 text-left">
+              <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 font-display">Orvexa Recruit</h3>
+              <p className="leading-relaxed">All-in-one recruitment and talent acquisition CRM-ATS software mapped for high-growth corporate teams and staffing agencies.</p>
+              <p className="text-[10px] font-bold text-slate-500">support@orvexarecruit.com</p>
+            </div>
+            
+            <div className="space-y-3 text-left">
+              <h4 className="font-bold text-slate-705 dark:text-slate-300">Integrations</h4>
+              <ul className="space-y-2 text-slate-500">
+                <li>Slack Integration</li>
+                <li>LinkedIn XML Sync</li>
+                <li>Google Calendar sync</li>
+                <li>Microsoft Teams Hub</li>
+              </ul>
+            </div>
+
+            <div className="space-y-3 text-left">
+              <h4 className="font-bold text-slate-705 dark:text-slate-300">Compliance</h4>
+              <ul className="space-y-2 text-slate-500">
+                <li>GDPR Readiness</li>
+                <li>Data Isolation bounds</li>
+                <li>PII Encryption protocols</li>
+                <li>Audit trail logging</li>
+              </ul>
+            </div>
+
+            <div className="space-y-3 text-left">
+              <h4 className="font-bold text-slate-705 dark:text-slate-300">Quick Links</h4>
+              <ul className="space-y-2 text-slate-500">
+                <li>Anti-spam policy</li>
+                <li>Terms of Service</li>
+                <li>Privacy Policy</li>
+                <li>Cookie Policies</li>
+              </ul>
+            </div>
+          </div>
+          
+          <div className="max-w-7xl mx-auto px-6 border-t border-slate-200/50 dark:border-slate-800/40 pt-8 text-center flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <p>&copy; {new Date().getFullYear()} Orvexa Recruit. All Rights Reserved. Choose Privacy.</p>
+            <div className="flex justify-center space-x-4">
+              <span>Security</span>
+              <span>•</span>
+              <span>Anti-Spam</span>
+              <span>•</span>
+              <span>GDPR</span>
+            </div>
+          </div>
         </footer>
       </div>
     );
