@@ -16,7 +16,10 @@ export class TenantMiddleware implements NestMiddleware {
       '/api/v1/auth/refresh',
       '/api/v1/onboarding',
       '/api/v1/jobs/public',
-      '/api/v1/candidates/apply'
+      '/api/v1/candidates/apply',
+      '/api/v1/candidate-portal/request-passcode',
+      '/api/v1/candidate-portal/verify-passcode',
+      '/api/v1/custom-fields/public'
     ];
     
     const isPublic = publicPaths.some(path => req.originalUrl.includes(path));
