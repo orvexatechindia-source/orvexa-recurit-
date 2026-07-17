@@ -103,4 +103,26 @@ export class CustomFieldsService {
       }
     });
   }
+
+  // 5. Delete a custom field configuration
+  async deleteField(id: string, tenantId: string) {
+    const field = await this.prisma.customField.findUnique({
+      where: { id }
+    });
+
+    if (!field || field.tenantId !== tenantId) {
+      throw new NotFoundException(`Custom field definition with ID "${id}" not found in this workspace.`);
+    }
+
+    // Cascade delete any stored values for this field
+    await this.prisma.customValue.deleteMany({
+      where: { fieldId: id, tenantId }
+    });
+
+    await this.prisma.customField.delete({
+      where: { id }
+    });
+
+    return { success: true, message: 'Custom field deleted successfully.' };
+  }
 }

@@ -1,19 +1,21 @@
 @import "tailwindcss";
 
 :root {
-  --background: #F0F5FA; /* Soft ice-blue/grey background from orvexatech.io */
-  --foreground: #1E293B; /* Slate dark text from orvexatech.io */
-  --primary: #046BD2; /* Brand Vibrant Blue from orvexatech.io */
-  --primary-hover: #045CB4; /* Brand Secondary Hover Blue */
+  --background: #F8FAFC;
+  --foreground: #0F172A;
+  --primary: #2563EB;
+  --primary-hover: #1D4ED8;
   --border: #E2E8F0;
+  --card: #FFFFFF;
 }
 
 .dark {
-  --background: #0B1220; /* Deep Navy dark mode background */
-  --foreground: #F8FAFC;
-  --primary: #046BD2;
-  --primary-hover: #045CB4;
-  --border: #1E293B;
+  --background: #030712;
+  --foreground: #F9FAFB;
+  --primary: #06B6D4;
+  --primary-hover: #0891B2;
+  --border: #1F2937;
+  --card: #0B1220;
 }
 
 @theme inline {
@@ -21,7 +23,7 @@
   --color-foreground: var(--foreground);
   --color-primary: var(--primary);
   --color-primary-hover: var(--primary-hover);
-  --font-sans: var(--font-inter);
+  --font-sans: var(--font-outfit);
   --font-display: var(--font-space-grotesk);
 }
 
@@ -29,4 +31,27 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans), sans-serif;
+}
+
+.transition-all-custom {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-hover-glow {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.card-hover-glow:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 10px 25px -5px rgba(6, 182, 212, 0.15), 0 8px 10px -6px rgba(6, 182, 212, 0.15);
+  border-color: rgba(6, 182, 212, 0.4);
+}
+
+.glow-btn {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.2s ease-in-out;
+}
+.glow-btn:hover {
+  box-shadow: 0 0 15px rgba(6, 182, 212, 0.5);
+  transform: scale(1.02);
 }

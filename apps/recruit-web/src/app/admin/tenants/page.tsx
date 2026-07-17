@@ -13,6 +13,9 @@ interface Tenant {
   country: string;
   subscriptionPlan: string;
   subscriptionStatus: string;
+  status: string;
+  subscriptionExpiry: string | null;
+  gracePeriodDays: number;
   createdAt: string;
   _count: {
     users: number;
@@ -28,35 +31,85 @@ export default function AdminTenantsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchTenants = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const response = await fetch('http://localhost:4000/api/v1/onboarding/tenants', {
-          headers: {
-            'Authorization': `Bearer ${accessToken}`,
-          },
-        });
-        const result = await response.json();
-        if (result.success) {
-          setTenants(result.data);
-        } else {
-          setError(result.error?.message || 'Failed to retrieve tenants.');
-        }
-      } catch (err: any) {
-        setError(err.message || 'Failed to fetch organizations list.');
-      } finally {
-        setLoading(false);
+  const fetchTenants = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await fetch('http://localhost:4000/api/v1/onboarding/tenants', {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+        },
+      });
+      const result = await response.json();
+      if (result.success) {
+        setTenants(result.data);
+      } else {
+        setError(result.error?.message || 'Failed to retrieve tenants.');
       }
-    };
+    } catch (err: any) {
+      setError(err.message || 'Failed to fetch organizations list.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     if (accessToken && user?.role === 'SUPER_ADMIN') {
       fetchTenants();
     } else {
       setLoading(false);
     }
   }, [accessToken, user]);
+
+  const handleToggleStatus = async (tenantId: string, currentStatus: string) => {
+    const nextStatus = currentStatus === 'ACTIVE' ? 'SUSPENDED' : 'ACTIVE';
+    if (!confirm(`Are you sure you want to change this tenant status to ${nextStatus}?`)) return;
+
+    try {
+      const response = await fetch(`http://localhost:4000/api/v1/onboarding/tenants/${tenantId}/status`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({ status: nextStatus }),
+      });
+      const result = await response.json();
+      if (result.success) {
+        fetchTenants();
+      } else {
+        alert(result.error?.message || 'Failed to update tenant status.');
+      }
+    } catch (err: any) {
+      alert(err.message || 'Failed to update status.');
+    }
+  };
+
+  const handleExtendSubscription = async (tenantId: string, currentExpiry: string | null) => {
+    const currentBase = currentExpiry ? new Date(currentExpiry) : new Date();
+    const nextExpiry = new Date(currentBase.getTime() + 30 * 24 * 60 * 60 * 1000);
+
+    if (!confirm(`Extend subscription until ${nextExpiry.toLocaleDateString()}?`)) return;
+
+    try {
+      const response = await fetch(`http://localhost:4000/api/v1/onboarding/tenants/${tenantId}/status`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({ subscriptionExpiry: nextExpiry.toISOString() }),
+      });
+      const result = await response.json();
+      if (result.success) {
+        fetchTenants();
+      } else {
+        alert(result.error?.message || 'Failed to extend subscription.');
+      }
+    } catch (err: any) {
+      alert(err.message || 'Failed to extend subscription.');
+    }
+  };
 
   if (user?.role !== 'SUPER_ADMIN') {
     return (
@@ -114,52 +167,85 @@ export default function AdminTenantsPage() {
                     <tr>
                       <th className="px-6 py-4">Company</th>
                       <th className="px-6 py-4">Domain slug</th>
-                      <th className="px-6 py-4">Country</th>
-                      <th className="px-6 py-4">Subscription</th>
+                      <th className="px-6 py-4">Status</th>
+                      <th className="px-6 py-4">Subscription Plan</th>
+                      <th className="px-6 py-4">Expiration Date</th>
                       <th className="px-6 py-4 text-center">Users</th>
                       <th className="px-6 py-4 text-center">Jobs</th>
                       <th className="px-6 py-4 text-center">Candidates</th>
-                      <th className="px-6 py-4">Onboarded</th>
+                      <th className="px-6 py-4">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                    {tenants.map((tenant) => (
-                      <tr key={tenant.id} className="hover:bg-slate-50/20 dark:hover:bg-slate-900/5 transition-all">
-                        <td className="px-6 py-4 font-semibold text-slate-900 dark:text-white">
-                          {tenant.name}
-                        </td>
-                        <td className="px-6 py-4 text-slate-600 dark:text-slate-400">
-                          {tenant.domain || 'N/A'}
-                        </td>
-                        <td className="px-6 py-4">
-                          <span className="inline-flex items-center space-x-1">
-                            <MapPin className="h-3.5 w-3.5 text-slate-400" />
-                            <span>{tenant.country}</span>
-                          </span>
-                        </td>
-                        <td className="px-6 py-4">
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                            tenant.subscriptionPlan === 'PRO' 
-                              ? 'bg-blue-100 text-blue-800 dark:bg-blue-950/30 dark:text-blue-400'
-                              : 'bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-300'
-                          }`}>
-                            {tenant.subscriptionPlan} ({tenant.subscriptionStatus.toLowerCase()})
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 text-center font-medium text-slate-900 dark:text-white">
-                          {tenant._count.users}
-                        </td>
-                        <td className="px-6 py-4 text-center font-medium text-slate-900 dark:text-white">
-                          {tenant._count.jobs}
-                        </td>
-                        <td className="px-6 py-4 text-center font-medium text-slate-900 dark:text-white">
-                          {tenant._count.candidates}
-                        </td>
-                        <td className="px-6 py-4 text-slate-600 dark:text-slate-400">
-                          {new Date(tenant.createdAt).toLocaleDateString()}
-                        </td>
-                      </tr>
-                    ))}
+                    {tenants.map((tenant) => {
+                      const isExpired = tenant.subscriptionExpiry && new Date(tenant.subscriptionExpiry) < new Date();
+                      const isSuspended = tenant.status === 'SUSPENDED';
+
+                      return (
+                        <tr key={tenant.id} className="hover:bg-slate-50/20 dark:hover:bg-slate-900/5 transition-all">
+                          <td className="px-6 py-4 font-semibold text-slate-900 dark:text-white">
+                            {tenant.name}
+                          </td>
+                          <td className="px-6 py-4 text-slate-600 dark:text-slate-400">
+                            {tenant.domain || 'N/A'}
+                          </td>
+                          <td className="px-6 py-4">
+                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${
+                              isSuspended
+                                ? 'bg-red-100 text-red-800 dark:bg-red-950/30 dark:text-red-400'
+                                : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-400'
+                            }`}>
+                              {tenant.status}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4">
+                            <span className="inline-flex items-center space-x-1">
+                              <CreditCard className="h-3.5 w-3.5 text-slate-400" />
+                              <span>{tenant.subscriptionPlan}</span>
+                            </span>
+                          </td>
+                          <td className="px-6 py-4">
+                            <span className={`inline-flex items-center space-x-1.5 ${
+                              isExpired ? 'text-red-500 font-medium' : 'text-slate-600 dark:text-slate-400'
+                            }`}>
+                              <Calendar className="h-3.5 w-3.5 text-slate-400" />
+                              <span>
+                                {tenant.subscriptionExpiry 
+                                  ? new Date(tenant.subscriptionExpiry).toLocaleDateString()
+                                  : 'Lifetime'}
+                              </span>
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 text-center font-medium text-slate-900 dark:text-white">
+                            {tenant._count.users}
+                          </td>
+                          <td className="px-6 py-4 text-center font-medium text-slate-900 dark:text-white">
+                            {tenant._count.jobs}
+                          </td>
+                          <td className="px-6 py-4 text-center font-medium text-slate-900 dark:text-white">
+                            {tenant._count.candidates}
+                          </td>
+                          <td className="px-6 py-4 space-x-2">
+                            <button
+                              onClick={() => handleToggleStatus(tenant.id, tenant.status)}
+                              className={`px-3 py-1 rounded text-xs font-semibold transition-colors cursor-pointer ${
+                                isSuspended
+                                  ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                                  : 'bg-red-600 hover:bg-red-700 text-white'
+                              }`}
+                            >
+                              {isSuspended ? 'Reactivate' : 'Suspend'}
+                            </button>
+                            <button
+                              onClick={() => handleExtendSubscription(tenant.id, tenant.subscriptionExpiry)}
+                              className="px-3 py-1 rounded text-xs font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-white transition-colors cursor-pointer"
+                            >
+                              +30 Days
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>

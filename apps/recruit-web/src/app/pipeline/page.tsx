@@ -149,9 +149,9 @@ export default function PipelinePage() {
   }, [accessToken, tenantId]);
 
   // 2. Fetch Applications for Selected Job
-  const fetchApplications = async () => {
+  const fetchApplications = async (silent = false) => {
     if (!selectedJobId) return;
-    setLoading(true);
+    if (!silent) setLoading(true);
     try {
       const response = await fetch(`http://localhost:4000/api/v1/applications?jobId=${selectedJobId}`, {
         headers: {
@@ -166,12 +166,18 @@ export default function PipelinePage() {
     } catch (err) {
       console.error(err);
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchApplications();
+    fetchApplications(false);
+
+    const interval = setInterval(() => {
+      fetchApplications(true);
+    }, 10000);
+
+    return () => clearInterval(interval);
   }, [selectedJobId, accessToken, tenantId]);
 
   // 3. Fetch Team Members (Interviewers) for Dropdowns

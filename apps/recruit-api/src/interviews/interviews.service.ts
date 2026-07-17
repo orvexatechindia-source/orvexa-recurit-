@@ -96,6 +96,24 @@ export class InterviewsService {
       console.warn('Failed to send interview invitation email:', err.message || err);
     }
 
+    try {
+      await this.prisma.auditLog.create({
+        data: {
+          tenantId,
+          action: 'SCHEDULE_INTERVIEW',
+          entityName: 'Interview',
+          entityId: interview.id,
+          metadata: {
+            candidateName: `${interview.application.candidate.firstName} ${interview.application.candidate.lastName}`,
+            jobTitle: app.job.title,
+            meetingUrl: finalMeetingUrl,
+          },
+        },
+      });
+    } catch (err: any) {
+      console.warn('Failed to create SCHEDULE_INTERVIEW audit log:', err.message || err);
+    }
+
     console.log(`[INTERVIEW-SCHEDULED] Created interview ${interview.id} for candidate ${app.candidate.email}`);
     return interview;
   }
@@ -138,6 +156,14 @@ export class InterviewsService {
   async remove(id: string, tenantId: string) {
     const interview = await this.prisma.interview.findUnique({
       where: { id },
+      include: {
+        application: {
+          include: {
+            candidate: true,
+            job: true,
+          },
+        },
+      },
     });
 
     if (!interview) {
@@ -151,6 +177,23 @@ export class InterviewsService {
     await this.prisma.interview.delete({
       where: { id },
     });
+
+    try {
+      await this.prisma.auditLog.create({
+        data: {
+          tenantId,
+          action: 'CANCEL_INTERVIEW',
+          entityName: 'Interview',
+          entityId: id,
+          metadata: {
+            candidateName: `${interview.application.candidate.firstName} ${interview.application.candidate.lastName}`,
+            jobTitle: interview.application.job.title,
+          },
+        },
+      });
+    } catch (err: any) {
+      console.warn('Failed to create CANCEL_INTERVIEW audit log:', err.message || err);
+    }
 
     console.log(`[INTERVIEW-CANCELLED] Cancelled interview ${id} in tenant ${tenantId}`);
     return { success: true, message: 'Interview cancelled successfully.' };

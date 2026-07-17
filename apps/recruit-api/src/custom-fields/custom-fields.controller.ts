@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Param, Query, UseGuards, Request, NotFoundException } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, Query, UseGuards, Request, NotFoundException, Delete } from '@nestjs/common';
 import { CustomFieldsService } from './custom-fields.service';
 import { CreateCustomFieldDto, SaveCustomValuesDto } from './dto/custom-fields.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -65,6 +65,15 @@ export class CustomFieldsController {
   async getValues(@Param('entityId') entityId: string, @Request() req: any) {
     const tenantId = req.tenantId;
     const result = await this.customFieldsService.getValues(entityId, tenantId);
+    return createSuccessResponse(result);
+  }
+
+  @UseGuards(JwtAuthGuard, RbacGuard)
+  @RequirePermissions(PERMISSIONS.CREATE_JOB)
+  @Delete(':id')
+  async deleteField(@Param('id') id: string, @Request() req: any) {
+    const tenantId = req.tenantId;
+    const result = await this.customFieldsService.deleteField(id, tenantId);
     return createSuccessResponse(result);
   }
 }

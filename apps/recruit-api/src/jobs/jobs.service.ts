@@ -17,7 +17,7 @@ export class JobsService {
   }
 
   async create(dto: CreateJobDto, tenantId: string) {
-    return this.prisma.job.create({
+    const job = await this.prisma.job.create({
       data: {
         title: dto.title,
         description: dto.description,
@@ -27,6 +27,25 @@ export class JobsService {
         tenantId,
       },
     });
+
+    try {
+      await this.prisma.auditLog.create({
+        data: {
+          tenantId,
+          action: 'CREATE_JOB',
+          entityName: 'Job',
+          entityId: job.id,
+          metadata: {
+            jobTitle: job.title,
+            status: job.status,
+          },
+        },
+      });
+    } catch (err: any) {
+      console.warn('Failed to create CREATE_JOB audit log:', err.message || err);
+    }
+
+    return job;
   }
 
   async findAll(tenantId: string) {

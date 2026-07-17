@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
-import { Inter, Space_Grotesk } from "next/font/google";
+import { Outfit, Space_Grotesk } from "next/font/google";
 import { AuthProvider } from "../context/auth-context";
 import { ThemeProvider } from "../components/theme-provider";
 import "./globals.css";
 
-const inter = Inter({
-  variable: "--font-inter",
+const outfit = Outfit({
+  variable: "--font-outfit",
   subsets: ["latin"],
 });
 
@@ -27,7 +27,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${spaceGrotesk.variable} h-full antialiased`}
+      className={`${outfit.variable} ${spaceGrotesk.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col font-sans bg-[#F8FAFC] dark:bg-[#0B1220] text-slate-900 dark:text-slate-100 transition-colors duration-200">
         <AuthProvider>

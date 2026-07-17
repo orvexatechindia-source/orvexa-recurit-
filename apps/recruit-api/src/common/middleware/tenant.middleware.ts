@@ -1,4 +1,4 @@
-import { Injectable, NestMiddleware, BadRequestException } from '@nestjs/common';
+import { Injectable, NestMiddleware, BadRequestException, HttpException, HttpStatus } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
 import { PrismaService } from '../../prisma/prisma.service';
 
@@ -8,6 +8,27 @@ export class TenantMiddleware implements NestMiddleware {
 
   async use(req: Request, res: Response, next: NextFunction) {
     let tenantId = req.headers['x-tenant-id'] as string;
+
+    // Resolve from JWT authorization token if available
+    let userRole: string | undefined;
+    const authHeader = req.headers['authorization'] as string;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      const token = authHeader.substring(7);
+      try {
+        const parts = token.split('.');
+        if (parts.length === 3) {
+          const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString('utf8'));
+          if (payload) {
+            if (payload.tenantId && !tenantId) {
+              tenantId = payload.tenantId;
+            }
+            userRole = payload.role;
+          }
+        }
+      } catch (err) {
+        // Ignore parse errors, fallback to other resolution steps
+      }
+    }
 
     // For public onboarding and authentication paths, tenantId might not be established yet.
     const publicPaths = [
@@ -76,6 +97,29 @@ export class TenantMiddleware implements NestMiddleware {
       if (!tenantExists) {
         throw new BadRequestException(`Multi-Tenancy Isolation Guard: Tenant ID "${tenantId}" not found.`);
       }
+
+      // LICENSE STATUS CHECK (except for billing routes, public routes, or super-admins)
+      const isBillingPath = req.originalUrl.includes('/api/v1/billing');
+      const isSuperAdmin = userRole === 'SUPER_ADMIN';
+      if (tenantExists.status === 'SUSPENDED' && !isBillingPath && !isPublic && !isSuperAdmin) {
+        throw new HttpException(
+          'Subscription Suspended: Please visit your Billing Settings to renew your license.',
+          HttpStatus.PAYMENT_REQUIRED
+        );
+      }
+
+      // Expiry check
+      if (tenantExists.subscriptionExpiry && !isBillingPath && !isPublic && !isSuperAdmin) {
+        const expiryDate = new Date(tenantExists.subscriptionExpiry);
+        const graceExpiry = new Date(expiryDate.getTime() + tenantExists.gracePeriodDays * 24 * 60 * 60 * 1000);
+        if (new Date() > graceExpiry) {
+          throw new HttpException(
+            'Subscription Expired: Please complete payment to reactivate your workspace.',
+            HttpStatus.PAYMENT_REQUIRED
+          );
+        }
+      }
+
       (req as any)['tenantId'] = tenantId;
     }
 

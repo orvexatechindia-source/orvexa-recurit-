@@ -105,4 +105,21 @@ export class OnboardingService {
       },
     });
   }
+
+  async updateTenantStatus(
+    id: string,
+    dto: { status?: string; subscriptionExpiry?: string; gracePeriodDays?: number }
+  ) {
+    const data: any = {};
+    if (dto.status !== undefined) data.status = dto.status;
+    if (dto.subscriptionExpiry !== undefined) {
+      data.subscriptionExpiry = dto.subscriptionExpiry ? new Date(dto.subscriptionExpiry) : null;
+    }
+    if (dto.gracePeriodDays !== undefined) data.gracePeriodDays = dto.gracePeriodDays;
+
+    return this.prisma.tenant.update({
+      where: { id },
+      data,
+    });
+  }
 }

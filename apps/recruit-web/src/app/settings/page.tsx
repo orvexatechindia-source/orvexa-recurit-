@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../context/auth-context';
 import { DashboardLayout } from '../../components/dashboard-layout';
 import { Button, Card, CardHeader, CardTitle, CardDescription, CardContent } from '@orvexa/ui';
-import { Settings, Plus, LayoutGrid, CheckSquare, Award, ArrowRight, ToggleLeft, ListFilter, CreditCard, Check, ShieldAlert, Sparkles } from 'lucide-react';
+import { Settings, Plus, LayoutGrid, CheckSquare, Award, ArrowRight, ToggleLeft, ListFilter, CreditCard, Check, ShieldAlert, Sparkles, Trash2 } from 'lucide-react';
 
 interface CustomField {
   id: string;
@@ -133,6 +133,28 @@ export default function SettingsPage() {
       alert(err.message);
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleDeleteField = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this custom field? This will also remove all associated candidate and job values.')) return;
+    try {
+      const response = await fetch(`http://localhost:4000/api/v1/custom-fields/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'X-Tenant-ID': tenantId || '',
+        },
+      });
+      const result = await response.json();
+      if (result.success) {
+        fetchFields();
+      } else {
+        alert(result.error?.message || 'Failed to delete custom field.');
+      }
+    } catch (err: any) {
+      console.error(err);
+      alert(err.message || 'Failed to delete custom field.');
     }
   };
 
@@ -693,17 +715,25 @@ export default function SettingsPage() {
                       </div>
                     </div>
 
-                    {/* Icon Representation */}
-                    <div className="p-2 bg-slate-50 dark:bg-slate-800 rounded-lg text-slate-400">
-                      {field.fieldType === 'BOOLEAN' ? (
-                        <ToggleLeft className="h-4.5 w-4.5" />
-                      ) : field.fieldType === 'DROPDOWN' ? (
-                        <ListFilter className="h-4.5 w-4.5" />
-                      ) : field.fieldType === 'NUMBER' ? (
-                        <Award className="h-4.5 w-4.5" />
-                      ) : (
-                        <CheckSquare className="h-4.5 w-4.5" />
-                      )}
+                    <div className="flex items-center space-x-2">
+                      <div className="p-2 bg-slate-50 dark:bg-slate-800 rounded-lg text-slate-400">
+                        {field.fieldType === 'BOOLEAN' ? (
+                          <ToggleLeft className="h-4.5 w-4.5" />
+                        ) : field.fieldType === 'DROPDOWN' ? (
+                          <ListFilter className="h-4.5 w-4.5" />
+                        ) : field.fieldType === 'NUMBER' ? (
+                          <Award className="h-4.5 w-4.5" />
+                        ) : (
+                          <CheckSquare className="h-4.5 w-4.5" />
+                        )}
+                      </div>
+                      <button
+                        onClick={() => handleDeleteField(field.id)}
+                        className="p-1.5 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg transition-colors cursor-pointer"
+                        title="Delete custom field"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
                     </div>
                   </div>
                 ))}

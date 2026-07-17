@@ -75,6 +75,9 @@ model Tenant {
   subscriptionStatus String        @default("ACTIVE") @map("subscription_status")
   subscriptionId     String?       @map("subscription_id")
   billingProvider    String?       @map("billing_provider")
+  status             String        @default("ACTIVE")
+  subscriptionExpiry DateTime?     @map("subscription_expiry")
+  gracePeriodDays    Int           @default(7) @map("grace_period_days")
 
   @@map("tenants")
 }

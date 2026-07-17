@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/auth-context';
 import { useTheme } from './theme-provider';
 import { Sun, Moon, LogOut, Bell, Menu } from 'lucide-react';
@@ -11,20 +11,95 @@ interface NavbarProps {
 }
 
 export const Navbar: React.FC<NavbarProps> = ({ onMenuClick }) => {
-  const { user, companyName, logout } = useAuth();
+  const { user, companyName, logout, accessToken } = useAuth();
   const { theme, toggleTheme } = useTheme();
 
-  const [notifications, setNotifications] = useState([
-    { id: 1, title: 'New Job Application', body: 'Siva Sridharan applied for Senior Node Developer', time: '2 mins ago', read: false },
-    { id: 2, title: 'AI Parsing Completed', body: 'Gemini CV Parser completed analysis for Siva Sridharan (Fit Score: 85%)', time: '5 mins ago', read: false },
-    { id: 3, title: 'Workspace Upgraded', body: 'Workspace billing upgraded to Pro Plan successfully.', time: '1 hour ago', read: false },
-  ]);
+  const [notifications, setNotifications] = useState<any[]>([]);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [lastRead, setLastRead] = useState<number>(0);
 
-  const unreadCount = notifications.filter(n => !n.read).length;
+  useEffect(() => {
+    const saved = localStorage.getItem('orvexa_notifications_last_read');
+    if (saved) {
+      setLastRead(parseInt(saved, 10));
+    }
+  }, []);
+
+  const fetchNotifications = async () => {
+    if (!accessToken) return;
+    try {
+      const response = await fetch('http://localhost:4000/api/v1/notifications', {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+        },
+      });
+      const result = await response.json();
+      if (result.success) {
+        const mapped = result.data.map((log: any) => {
+          let title = 'System Activity';
+          let body = `${log.action} executed.`;
+
+          if (log.action === 'ONBOARD_ORGANIZATION') {
+            title = 'Workspace Setup Complete';
+            body = `Organization ${log.metadata?.companyName || ''} was successfully registered.`;
+          } else if (log.action === 'CREATE_JOB') {
+            title = 'New Job Vacancy';
+            body = `A new role "${log.metadata?.jobTitle || ''}" was published.`;
+          } else if (log.action === 'APPLY_JOB') {
+            title = 'New Job Applicant';
+            body = `Candidate ${log.metadata?.candidateName || ''} applied for "${log.metadata?.jobTitle || ''}"`;
+          } else if (log.action === 'SCHEDULE_INTERVIEW') {
+            title = 'Interview Scheduled';
+            body = `Interview booked for candidate ${log.metadata?.candidateName || ''}.`;
+          } else if (log.action === 'CANCEL_INTERVIEW') {
+            title = 'Interview Cancelled';
+            body = `Scheduled interview cancelled for candidate ${log.metadata?.candidateName || ''}.`;
+          } else if (log.action === 'UPDATE_STAGE') {
+            title = 'Candidate Stage Advanced';
+            body = `${log.metadata?.candidateName || 'Applicant'} moved to ${log.metadata?.newStage || ''}`;
+          }
+
+          const createdTime = new Date(log.timestamp).getTime();
+          const diffMins = Math.floor((Date.now() - createdTime) / 60000);
+          let timeStr = 'Just now';
+          if (diffMins > 0 && diffMins < 60) {
+            timeStr = `${diffMins} min${diffMins > 1 ? 's' : ''} ago`;
+          } else if (diffMins >= 60 && diffMins < 1440) {
+            const hours = Math.floor(diffMins / 60);
+            timeStr = `${hours} hour${hours > 1 ? 's' : ''} ago`;
+          } else if (diffMins >= 1440) {
+            timeStr = new Date(log.timestamp).toLocaleDateString();
+          }
+
+          return {
+            id: log.id,
+            title,
+            body,
+            time: timeStr,
+            createdTime,
+          };
+        });
+        setNotifications(mapped);
+      }
+    } catch (err) {
+      console.error('Failed to pull system notifications:', err);
+    }
+  };
+
+  useEffect(() => {
+    if (accessToken) {
+      fetchNotifications();
+      const interval = setInterval(fetchNotifications, 15000);
+      return () => clearInterval(interval);
+    }
+  }, [accessToken]);
+
+  const unreadCount = notifications.filter(n => n.createdTime > lastRead).length;
 
   const markAllRead = () => {
-    setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+    const now = Date.now();
+    setLastRead(now);
+    localStorage.setItem('orvexa_notifications_last_read', String(now));
   };
 
   if (!user) return null;

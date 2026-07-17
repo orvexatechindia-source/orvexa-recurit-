@@ -122,6 +122,24 @@ export class CandidatesService {
       },
     });
 
+    try {
+      await this.prisma.auditLog.create({
+        data: {
+          tenantId,
+          action: 'APPLY_JOB',
+          entityName: 'Application',
+          entityId: application.id,
+          metadata: {
+            candidateName: `${candidate.firstName} ${candidate.lastName}`,
+            jobTitle: application.job.title,
+            matchScore: parsedResult.matchScore,
+          },
+        },
+      });
+    } catch (err: any) {
+      console.warn('Failed to create APPLY_JOB audit log:', err.message || err);
+    }
+
     // Save Candidate custom values if provided
     if (dto.customValues) {
       try {

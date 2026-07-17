@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, Get, UseGuards, Patch, Param } from '@nestjs/common';
 import { OnboardingService, OnboardTenantDto } from './onboarding.service';
 import { createSuccessResponse } from '@orvexa/shared';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -21,6 +21,17 @@ export class OnboardingController {
   @Get('tenants')
   async findAllTenants() {
     const result = await this.onboardingService.findAllTenants();
+    return createSuccessResponse(result);
+  }
+
+  @UseGuards(JwtAuthGuard, RbacGuard)
+  @RequirePermissions(PERMISSIONS.MANAGE_ALL_TENANTS)
+  @Patch('tenants/:id/status')
+  async updateTenantStatus(
+    @Param('id') id: string,
+    @Body() body: { status?: string; subscriptionExpiry?: string; gracePeriodDays?: number }
+  ) {
+    const result = await this.onboardingService.updateTenantStatus(id, body);
     return createSuccessResponse(result);
   }
 }
