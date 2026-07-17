@@ -42,9 +42,9 @@ export const MarketingFeatures: React.FC = () => {
           {features.map((feat, idx) => {
             const Icon = feat.icon;
             return (
-              <Card key={idx} className="border border-slate-200 dark:border-slate-800 hover:border-[#046bd2] hover:shadow-md transition-all duration-200 bg-[#F0F5FA]/30 dark:bg-transparent">
+              <Card key={idx} className="border border-slate-200 dark:border-slate-800 hover:border-[#2563EB] hover:shadow-md transition-all duration-200 bg-[#F0F5FA]/30 dark:bg-transparent">
                 <CardHeader className="pb-2">
-                  <div className="h-10 w-10 rounded-lg bg-[#046bd2]/10 dark:bg-[#046bd2]/20 flex items-center justify-center text-[#046bd2] dark:text-cyan-400 mb-3">
+                  <div className="h-10 w-10 rounded-lg bg-[#2563EB]/10 dark:bg-[#2563EB]/20 flex items-center justify-center text-[#2563EB] dark:text-cyan-400 mb-3">
                     <Icon className="h-5 w-5" />
                   </div>
                   <CardTitle className="text-lg font-bold text-slate-900 dark:text-white">{feat.title}</CardTitle>

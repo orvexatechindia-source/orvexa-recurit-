@@ -68,13 +68,13 @@ export const MarketingPricing: React.FC = () => {
               key={idx} 
               className={`border transition-all duration-200 flex flex-col justify-between ${
                 plan.popular 
-                  ? 'border-[#046bd2] shadow-md ring-2 ring-[#046bd2]/10 scale-102 bg-white dark:bg-[#111827]' 
+                  ? 'border-[#2563EB] shadow-md ring-2 ring-[#2563EB]/10 scale-102 bg-white dark:bg-[#111827]' 
                   : 'border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-transparent'
               }`}
             >
               <CardHeader className="pb-6">
                 {plan.popular && (
-                  <span className="inline-flex items-center rounded-full bg-[#046bd2]/10 px-3 py-1 text-xs font-semibold text-[#046bd2] dark:text-cyan-400 self-start mb-4">
+                  <span className="inline-flex items-center rounded-full bg-[#2563EB]/10 px-3 py-1 text-xs font-semibold text-[#2563EB] dark:text-cyan-400 self-start mb-4">
                     Most Popular
                   </span>
                 )}
@@ -89,7 +89,7 @@ export const MarketingPricing: React.FC = () => {
                 <ul className="space-y-3.5">
                   {plan.features.map((feat, fIdx) => (
                     <li key={fIdx} className="flex items-start space-x-3 text-sm text-slate-600 dark:text-slate-300">
-                      <Check className="h-4 w-4 text-[#046bd2] dark:text-cyan-400 shrink-0 mt-0.5" />
+                      <Check className="h-4 w-4 text-[#2563EB] dark:text-cyan-400 shrink-0 mt-0.5" />
                       <span>{feat}</span>
                     </li>
                   ))}
@@ -105,7 +105,7 @@ export const MarketingPricing: React.FC = () => {
                     }
                   }}
                   variant={plan.popular ? 'primary' : 'outline'} 
-                  className="w-full bg-[#046bd2] hover:bg-[#045cb4]"
+                  className="w-full bg-[#2563EB] hover:bg-[#1d4ed8] text-white cursor-pointer border-0 font-bold"
                 >
                   {plan.price === 'Custom' ? 'Contact Sales' : 'Start Trial'}
                 </Button>

@@ -56,35 +56,41 @@ const TABS = [
 export const MarketingHero: React.FC = () => {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('ai-parser');
+  const [emailInput, setEmailInput] = useState('');
 
   const currentTab = TABS.find(t => t.id === activeTab) || TABS[0];
 
+  const handleSignupRedirect = (e: React.FormEvent) => {
+    e.preventDefault();
+    router.push(`/register?email=${encodeURIComponent(emailInput)}`);
+  };
+
   return (
-    <div className="relative overflow-hidden bg-[#FAF6F0] dark:bg-[#0B1220] transition-colors duration-200 text-[#2E2C2A] dark:text-slate-200">
+    <div className="relative overflow-hidden bg-[#F8FAFC] dark:bg-[#0B1220] transition-colors duration-200 text-slate-900 dark:text-slate-200">
       {/* Background abstract radial decorations */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[500px] pointer-events-none opacity-10">
-        <div className="absolute top-[-20%] left-[20%] w-[600px] h-[600px] rounded-full bg-[#046bd2] blur-[150px]" />
-        <div className="absolute top-[10%] right-[10%] w-[400px] h-[400px] rounded-full bg-[#E57A5D] blur-[120px]" />
+        <div className="absolute top-[-20%] left-[20%] w-[600px] h-[600px] rounded-full bg-[#2563EB] blur-[150px]" />
+        <div className="absolute top-[10%] right-[10%] w-[400px] h-[400px] rounded-full bg-[#3B82F6] blur-[120px]" />
       </div>
 
       {/* Public Header/Navbar */}
       <header className="relative max-w-7xl mx-auto px-6 h-24 flex items-center justify-between z-10">
         <div className="flex items-center space-x-3">
-          <h2 className="text-2xl font-bold tracking-tight text-[#2E2C2A] dark:text-white font-display">
-            Orvexa <span className="text-[#046bd2] dark:text-cyan-400">Recruit</span>
+          <h2 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white font-display">
+            Orvexa <span className="text-[#2563EB] dark:text-cyan-400">Recruit</span>
           </h2>
         </div>
         
         <div className="flex items-center space-x-6">
           <button 
             onClick={() => router.push('/login')}
-            className="text-sm font-bold text-[#2E2C2A] dark:text-slate-300 hover:text-[#046bd2] dark:hover:text-white transition-all"
+            className="text-sm font-bold text-slate-600 dark:text-slate-350 hover:text-[#2563EB] dark:hover:text-white transition-all cursor-pointer"
           >
             Log In
           </button>
           <Button 
             onClick={() => router.push('/register')} 
-            className="rounded-full bg-[#E57A5D] hover:bg-[#d0674a] text-white border-0 font-bold px-6 h-11"
+            className="rounded-full bg-[#2563EB] hover:bg-blue-700 text-white border-0 font-bold px-6 h-11 cursor-pointer"
           >
             Get Started
           </Button>
@@ -96,46 +102,60 @@ export const MarketingHero: React.FC = () => {
         
         {/* Slogans & Buttons */}
         <div className="flex-1 text-center lg:text-left space-y-6 max-w-2xl">
-          <div className="inline-flex items-center space-x-2 bg-[#046bd2]/10 dark:bg-[#046bd2]/20 px-4 py-1.5 rounded-full text-xs font-bold text-[#046bd2] dark:text-cyan-400">
+          <div className="inline-flex items-center space-x-2 bg-[#2563EB]/10 dark:bg-[#2563EB]/20 px-4 py-1.5 rounded-full text-xs font-bold text-[#2563EB] dark:text-cyan-400">
             <Sparkles className="h-3.5 w-3.5" />
             <span>AI-POWERED RECRUITING & TALENT MANAGEMENT</span>
           </div>
 
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-[#2E2C2A] dark:text-white font-display leading-[1.1] font-serif">
-            The all-in-one hiring platform for <span className="text-[#046bd2] dark:text-cyan-400">growing businesses.</span>
+          <h1 className="text-4xl sm:text-5xl lg:text-6.5xl font-extrabold tracking-tight text-slate-900 dark:text-white font-display leading-[1.1] font-serif">
+            The all-in-one hiring platform for <span className="text-[#2563EB] dark:text-cyan-400">growing businesses.</span>
           </h1>
 
-          <p className="text-base sm:text-lg text-slate-600 dark:text-slate-400 leading-relaxed font-sans">
+          <p className="text-base sm:text-lg text-slate-500 dark:text-slate-400 leading-relaxed font-sans">
             Orvexa Recruit helps you source, parse, rank, and hire the best talent globally. Integrate your pipelines, schedule interviews automatically, and ensure strict compliance in one unified system.
           </p>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-4">
-            <Button 
-              onClick={() => router.push('/register')} 
-              size="lg" 
-              className="w-full sm:w-auto rounded-full bg-[#046bd2] hover:bg-[#035bb3] text-white font-bold px-8 h-12 flex items-center justify-center space-x-2 shadow-lg shadow-blue-500/10"
-            >
-              <span>Start Free Trial</span>
-              <ArrowRight className="h-4 w-4" />
-            </Button>
-            <Button 
-              variant="outline" 
-              size="lg" 
-              onClick={() => window.location.href = 'mailto:sales@orvexarecruit.com?subject=Book a Demo Request - Orvexa Recruit'}
-              className="w-full sm:w-auto rounded-full border-slate-300 dark:border-slate-700 bg-white/50 dark:bg-slate-900/50 text-[#2E2C2A] dark:text-white font-bold px-8 h-12"
-            >
-              Book a Demo
-            </Button>
+          {/* Zoho-style instant email signup form block */}
+          <div className="space-y-4 pt-4">
+            <form onSubmit={handleSignupRedirect} className="flex flex-col sm:flex-row items-center gap-3 max-w-lg">
+              <input
+                type="email"
+                required
+                placeholder="Enter your work email address"
+                value={emailInput}
+                onChange={(e) => setEmailInput(e.target.value)}
+                className="w-full h-12 px-4 rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB] placeholder-slate-400 text-slate-900 dark:text-white"
+              />
+              <Button 
+                type="submit"
+                size="lg" 
+                className="w-full sm:w-auto rounded-full bg-[#2563EB] hover:bg-blue-700 text-white font-bold px-8 h-12 flex items-center justify-center space-x-2 shrink-0 shadow-lg shadow-blue-500/10 cursor-pointer"
+              >
+                <span>Sign Up Free</span>
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            </form>
+            <div className="flex items-center justify-center lg:justify-start space-x-3 text-xs text-slate-500">
+              <span>No credit card required.</span>
+              <span>•</span>
+              <button 
+                type="button"
+                onClick={() => window.location.href = 'mailto:sales@orvexarecruit.com?subject=Book a Demo Request - Orvexa Recruit'}
+                className="font-bold text-[#2563EB] hover:underline cursor-pointer"
+              >
+                Book a Demo
+              </button>
+            </div>
           </div>
 
           {/* Compliance features badges */}
-          <div className="flex flex-wrap items-center justify-center lg:justify-start gap-6 pt-8 text-xs text-slate-400">
+          <div className="flex flex-wrap items-center justify-center lg:justify-start gap-6 pt-6 text-xs text-slate-400">
             <div className="flex items-center space-x-2">
-              <ShieldCheck className="h-4 w-4 text-[#046bd2] dark:text-cyan-400" />
+              <ShieldCheck className="h-4 w-4 text-[#2563EB] dark:text-cyan-400" />
               <span>GDPR & PII Secure</span>
             </div>
             <div className="flex items-center space-x-2">
-              <Cpu className="h-4 w-4 text-[#046bd2] dark:text-cyan-400" />
+              <Cpu className="h-4 w-4 text-[#2563EB] dark:text-cyan-400" />
               <span>Gemini 1.5 Pro Matching</span>
             </div>
           </div>
@@ -149,10 +169,10 @@ export const MarketingHero: React.FC = () => {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all border ${
+                className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all border cursor-pointer ${
                   activeTab === tab.id
-                    ? 'bg-[#046bd2] text-white border-[#046bd2] shadow-sm'
-                    : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:border-slate-300'
+                    ? 'bg-[#2563EB] text-white border-[#2563EB] shadow-sm'
+                    : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:border-slate-350'
                 }`}
               >
                 {tab.label}
@@ -163,7 +183,7 @@ export const MarketingHero: React.FC = () => {
           <div className="bg-white dark:bg-[#111827] border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-xl relative min-h-[380px] flex flex-col justify-between">
             {/* Dynamic display block */}
             <div className="space-y-4">
-              <h4 className="text-base font-bold text-[#2E2C2A] dark:text-white font-display">
+              <h4 className="text-base font-bold text-slate-900 dark:text-white font-display">
                 {currentTab.title}
               </h4>
               <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
@@ -175,7 +195,7 @@ export const MarketingHero: React.FC = () => {
                 <div className="space-y-4 pt-2">
                   <div className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-slate-100 dark:border-slate-850 flex items-center justify-between">
                     <div className="flex items-center space-x-3">
-                      <div className="h-10 w-10 rounded-full bg-[#046bd2]/10 flex items-center justify-center font-bold text-[#046bd2]">
+                      <div className="h-10 w-10 rounded-full bg-blue-50 dark:bg-slate-800 flex items-center justify-center font-bold text-[#2563EB]">
                         {currentTab.mockup.name?.split(' ').map(n => n[0]).join('')}
                       </div>
                       <div>
@@ -205,7 +225,7 @@ export const MarketingHero: React.FC = () => {
                   {currentTab.mockup.columns?.map((col, idx) => (
                     <div key={idx} className="bg-slate-50 dark:bg-slate-900/50 border border-slate-150 dark:border-slate-850 rounded-xl p-3 text-center">
                       <h5 className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">{col.label}</h5>
-                      <span className="text-xl font-extrabold text-[#046bd2] dark:text-cyan-400 block my-1">{col.count}</span>
+                      <span className="text-xl font-extrabold text-[#2563EB] dark:text-cyan-400 block my-1">{col.count}</span>
                       <p className="text-[9px] text-slate-500 dark:text-slate-400 truncate font-medium">{col.name}</p>
                     </div>
                   ))}
@@ -233,7 +253,7 @@ export const MarketingHero: React.FC = () => {
               <span>Dynamic workspace preview</span>
               <button 
                 onClick={() => router.push('/register')}
-                className="font-bold text-[#046bd2] hover:underline flex items-center space-x-1"
+                className="font-bold text-[#2563EB] hover:underline flex items-center space-x-1 cursor-pointer"
               >
                 <span>Try this feature</span>
                 <ArrowRight className="h-3.5 w-3.5" />
