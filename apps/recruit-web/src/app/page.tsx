@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/auth-context';
+import { useRouter } from 'next/navigation';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@orvexa/ui';
 import { DashboardLayout } from '../components/dashboard-layout';
 import { MarketingHero } from '../components/marketing-hero';
@@ -10,9 +11,16 @@ import { MarketingPricing } from '../components/marketing-pricing';
 
 export default function HomePage() {
   const { user, loading, accessToken, tenantId } = useAuth();
+  const router = useRouter();
   const [jobsCount, setJobsCount] = useState<number>(0);
   const [candidatesCount, setCandidatesCount] = useState<number>(0);
   const [interviewsCount, setInterviewsCount] = useState<number>(0);
+
+  useEffect(() => {
+    if (!loading && user && user.role === 'SUPER_ADMIN') {
+      router.push('/admin');
+    }
+  }, [user, loading, router]);
 
   const fetchStats = async () => {
     if (!accessToken) return;
