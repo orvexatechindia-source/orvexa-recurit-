@@ -28,6 +28,14 @@ export class InterviewsController {
     return createSuccessResponse(result);
   }
 
+  @RequirePermissions(PERMISSIONS.MANAGE_USERS)
+  @Post('team')
+  async addTeamMember(@Body() dto: any, @Request() req: any) {
+    const tenantId = req.tenantId;
+    const result = await this.interviewsService.addTeamMember(dto, tenantId);
+    return createSuccessResponse(result);
+  }
+
   @RequirePermissions(PERMISSIONS.VIEW_CANDIDATES)
   @Get()
   async findAll(@Request() req: any) {

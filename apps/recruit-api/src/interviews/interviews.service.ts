@@ -4,12 +4,14 @@ import { CreateInterviewDto } from './dto/create-interview.dto';
 import { InterviewStatus } from '@prisma/client';
 import { SesService } from '../notifications/ses.service';
 import { getInterviewInvitationTemplate } from '@orvexa/notifications';
+import { AuthService } from '../auth/auth.service';
 
 @Injectable()
 export class InterviewsService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly sesService: SesService
+    private readonly sesService: SesService,
+    private readonly authService: AuthService
   ) {}
 
   // 1. Schedule Interview
@@ -161,10 +163,30 @@ export class InterviewsService {
         id: true,
         name: true,
         email: true,
+        role: true,
       },
       orderBy: {
         name: 'asc',
       },
+    });
+  }
+
+  async addTeamMember(dto: { name: string; email: string; role: any }, tenantId: string) {
+    const existing = await this.prisma.user.findUnique({
+      where: { email: dto.email }
+    });
+    if (existing) {
+      throw new BadRequestException('A user with this email address already exists.');
+    }
+    const hashedPassword = await this.authService.hashPassword('Password123');
+    return this.prisma.user.create({
+      data: {
+        email: dto.email,
+        name: dto.name,
+        passwordHash: hashedPassword,
+        role: dto.role,
+        tenantId
+      }
     });
   }
 }
