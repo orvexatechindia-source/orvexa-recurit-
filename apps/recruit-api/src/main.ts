@@ -8,7 +8,7 @@ async function bootstrap() {
   
   // Enable CORS with support for dynamic subdomain resolution
   app.enableCors({
-    origin: (origin, callback) => {
+    origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
       if (!origin) return callback(null, true);
       
       const allowedHosts = [
