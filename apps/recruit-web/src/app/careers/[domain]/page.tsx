@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
+import Link from 'next/link';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@orvexa/ui';
 import { Briefcase, MapPin, Calendar, Clock } from 'lucide-react';
 
@@ -92,9 +93,11 @@ export default function CareerPortalPage() {
                       </span>
                     </div>
                   </div>
-                  <button className="h-10 px-6 font-semibold bg-[#2563EB] text-white hover:bg-[#1d4ed8] rounded-md transition-all duration-200 active:scale-98 self-start sm:self-center">
-                    Apply Now
-                  </button>
+                  <Link href={`/careers/${domain}/${job.id}/apply`}>
+                    <button className="h-10 px-6 font-semibold bg-[#2563EB] text-white hover:bg-[#1d4ed8] rounded-md transition-all duration-200 active:scale-98 self-start sm:self-center">
+                      Apply Now
+                    </button>
+                  </Link>
                 </CardHeader>
                 <CardContent className="border-t border-slate-100 dark:border-slate-800/80 pt-4">
                   <div className="space-y-4">
