@@ -105,7 +105,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onMenuClick }) => {
   if (!user) return null;
 
   return (
-    <header className="h-16 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0B1220] flex items-center justify-between px-6 sticky top-0 z-30 font-sans">
+    <header className="h-16 border-b border-slate-200 dark:border-slate-800 bg-card flex items-center justify-between px-6 sticky top-0 z-30 font-sans">
       <div className="flex items-center space-x-4">
         {/* Mobile sandwich hamburger bar */}
         <button

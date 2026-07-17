@@ -25,7 +25,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#F0F5FA] dark:bg-[#0B1220] transition-colors duration-200">
+      <div className="flex min-h-screen items-center justify-center bg-background text-foreground transition-colors duration-200">
         <div className="text-center">
           <p className="text-lg font-medium text-slate-600 dark:text-slate-400">Loading Orvexa...</p>
         </div>
@@ -39,7 +39,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
   }
 
   return (
-    <div className="flex h-screen overflow-hidden bg-[#F0F5FA] dark:bg-[#0B1220] transition-colors duration-200 font-sans">
+    <div className="flex h-screen overflow-hidden bg-background text-foreground transition-colors duration-200 font-sans">
       {/* Sidebar - Desktop */}
       <Sidebar className="hidden lg:flex" />
 
@@ -52,7 +52,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
       )}
 
       {/* Sidebar - Mobile drawer slide-out */}
-      <div className={`fixed inset-y-0 left-0 w-64 bg-white dark:bg-[#0B1220] z-50 transform transition-transform duration-300 ease-in-out lg:hidden border-r border-slate-200 dark:border-slate-800 ${
+      <div className={`fixed inset-y-0 left-0 w-64 bg-card text-foreground z-50 transform transition-transform duration-300 ease-in-out lg:hidden border-r border-slate-200 dark:border-slate-800 ${
         sidebarOpen ? 'translate-x-0' : '-translate-x-full'
       }`}>
         <div className="flex h-full flex-col">
