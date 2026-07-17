@@ -89,4 +89,20 @@ export class OnboardingService {
       },
     };
   }
+
+  async findAllTenants() {
+    return this.prisma.tenant.findMany({
+      orderBy: { createdAt: 'desc' },
+      include: {
+        _count: {
+          select: {
+            users: true,
+            jobs: true,
+            candidates: true,
+            applications: true,
+          },
+        },
+      },
+    });
+  }
 }
