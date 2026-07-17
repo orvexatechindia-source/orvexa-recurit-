@@ -6,12 +6,32 @@ import * as express from 'express';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   
-  // Enable CORS with support for credentials
+  // Enable CORS with support for dynamic subdomain resolution
   app.enableCors({
-    origin: [
-      'http://localhost:3000',
-      'https://orvexatech.online'
-    ],
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      
+      const allowedHosts = [
+        'localhost:3000',
+        'orvexatech.online',
+        'orvexarecruit.com',
+        'app.orvexarecruit.com'
+      ];
+      
+      const parsedOrigin = new URL(origin);
+      const host = parsedOrigin.host; // e.g. "lhalondon.localhost:3000" or "app.orvexarecruit.com"
+      
+      const isAllowed = allowedHosts.includes(host) ||
+        host.endsWith('.localhost:3000') ||
+        host.endsWith('.orvexatech.online') ||
+        host.endsWith('.orvexarecruit.com');
+        
+      if (isAllowed) {
+        callback(null, true);
+      } else {
+        callback(new Error(`Origin ${origin} not allowed by CORS`));
+      }
+    },
     credentials: true,
   });
 
