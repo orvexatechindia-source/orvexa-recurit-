@@ -117,7 +117,7 @@ export const MarketingHero: React.FC = () => {
 
           {/* Lead conversion card */}
           <form onSubmit={handleSignupSubmit} className="bg-white dark:bg-[#111827] p-6 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-md space-y-4 max-w-lg w-full">
-            <h3 className="font-bold text-slate-855 dark:text-slate-200 text-sm">Start your 15-day free trial</h3>
+            <h3 className="font-bold text-slate-855 dark:text-slate-200 text-sm">Start your 90-day free trial</h3>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1">

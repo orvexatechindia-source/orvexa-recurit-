@@ -58,7 +58,7 @@ export const MarketingPricing: React.FC = () => {
             Predictable Plans for Dynamic Scaling
           </h2>
           <p className="text-slate-500 dark:text-slate-400">
-            Select a plan to start your free 14-day trial. Cancel or upgrade at any time.
+            Select a plan to start your free 90-day trial. Cancel or upgrade at any time.
           </p>
         </div>
 
