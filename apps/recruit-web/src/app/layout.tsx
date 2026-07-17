@@ -15,8 +15,8 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: "Orvexa Recruit | AI-Powered Applicant Tracking System (ATS)",
-  description: "Enterprise Applicant Tracking System and Talent Acquisition SaaS powered by Google Gemini AI.",
+  title: "Orvexa Recruit | All-in-One Recruitment Software for HR & Staffing",
+  description: "Reduce time to hire with Orvexa Recruit, an AI-powered ATS and recruitment CRM for Corporate HRs and Staffing Agencies. Source, track, and hire the right talent.",
 };
 
 export default function RootLayout({
@@ -30,6 +30,24 @@ export default function RootLayout({
       className={`${plusJakartaSans.variable} ${spaceGrotesk.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col font-sans bg-[#F8FAFC] dark:bg-[#0B1220] text-slate-900 dark:text-slate-100 transition-colors duration-200">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "SoftwareApplication",
+              "name": "Orvexa Recruit",
+              "operatingSystem": "All",
+              "applicationCategory": "BusinessApplication",
+              "description": "Reduce time to hire with Orvexa Recruit, an AI-powered ATS and recruitment CRM for Corporate HRs and Staffing Agencies. Source, track, and hire the right talent.",
+              "offers": {
+                "@type": "Offer",
+                "price": "99.00",
+                "priceCurrency": "USD"
+              }
+            })
+          }}
+        />
         <AuthProvider>
           <ThemeProvider>
             {children}
