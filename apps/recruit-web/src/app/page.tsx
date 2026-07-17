@@ -15,6 +15,7 @@ export default function HomePage() {
   const [jobsCount, setJobsCount] = useState<number>(0);
   const [candidatesCount, setCandidatesCount] = useState<number>(0);
   const [interviewsCount, setInterviewsCount] = useState<number>(0);
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   useEffect(() => {
     if (!loading && user && user.role === 'SUPER_ADMIN') {
@@ -63,15 +64,13 @@ export default function HomePage() {
   // If loading session, show loading spinner
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#F0F5FA] dark:bg-[#0B1220] transition-colors duration-200">
+      <div className="flex min-h-screen items-center justify-center bg-slate-50 dark:bg-[#0B1220] transition-colors duration-200">
         <div className="text-center">
           <p className="text-lg font-medium text-slate-600 dark:text-slate-400">Loading workspace...</p>
         </div>
       </div>
     );
   }
-
-  const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   const FAQS = [
     {

@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@orvexa/ui';
-import { Sparkles, ArrowRight, ShieldCheck, Cpu, Star, Check, Award } from 'lucide-react';
+import { Sparkles, ArrowRight, ShieldCheck, Cpu, Star } from 'lucide-react';
 
 const TABS = [
   {
@@ -49,7 +49,7 @@ const TABS = [
 export const MarketingHero: React.FC = () => {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('ai-parser');
-  const [hiringAs, setHiringAs] = useState('Corporate HRs');
+  const [hiringAs, setHiringAs] = useState('Corporate HR Team');
   const [emailInput, setEmailInput] = useState('');
   const [agreeCheck, setAgreeCheck] = useState(false);
 
@@ -58,7 +58,7 @@ export const MarketingHero: React.FC = () => {
   const handleSignupSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!agreeCheck) {
-      alert("Please agree to the Terms of Service and Privacy Policy.");
+      alert("Please agree to our Terms of Service and Privacy Policy.");
       return;
     }
     router.push(`/register?email=${encodeURIComponent(emailInput)}&hiringAs=${hiringAs}`);
@@ -104,30 +104,30 @@ export const MarketingHero: React.FC = () => {
         <div className="flex-1 space-y-6 max-w-2xl text-left">
           <div className="inline-flex items-center space-x-2 bg-[#2563EB]/10 dark:bg-[#2563EB]/20 px-4 py-1.5 rounded-full text-xs font-bold text-[#2563EB] dark:text-cyan-400">
             <Sparkles className="h-3.5 w-3.5" />
-            <span>AI-POWERED RECRUITING & TALENT MANAGEMENT</span>
+            <span>AI-POWERED APPLICANT TRACKING & ATS</span>
           </div>
 
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-slate-900 dark:text-white font-display leading-[1.1] font-serif">
-            Celebrate growth with every new hire.
+            Hire the best talent. Scale your team.
           </h1>
 
           <p className="text-base sm:text-lg text-slate-500 dark:text-slate-400 leading-relaxed font-sans">
-            Say hello to your AI-powered, automation-friendly and all-things-recruitment tool - Orvexa Recruit. Source, parse, and track top talent.
+            The modern applicant tracking system and candidate relationship CRM built for high-growth corporate HR teams and staffing agencies.
           </p>
 
-          {/* Detailed lead-conversion card */}
+          {/* Lead conversion card */}
           <form onSubmit={handleSignupSubmit} className="bg-white dark:bg-[#111827] p-6 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-md space-y-4 max-w-lg w-full">
-            <h3 className="font-bold text-slate-850 dark:text-slate-200 text-sm">Start your 15-day free trial</h3>
+            <h3 className="font-bold text-slate-855 dark:text-slate-200 text-sm">Start your 15-day free trial</h3>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1">
-                <label className="text-[10px] font-bold text-slate-400 uppercase">Hiring As</label>
+                <label className="text-[10px] font-bold text-slate-400 uppercase">I am a</label>
                 <select
                   value={hiringAs}
                   onChange={(e) => setHiringAs(e.target.value)}
                   className="w-full h-10 px-3 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0B1220] text-xs text-slate-900 dark:text-white focus:outline-none"
                 >
-                  <option value="Corporate HRs">Corporate HRs</option>
+                  <option value="Corporate HR Team">Corporate HR Team</option>
                   <option value="Staffing Agency">Staffing Agency</option>
                 </select>
               </div>
@@ -154,7 +154,7 @@ export const MarketingHero: React.FC = () => {
                   className="mt-0.5 rounded border-slate-300 text-[#2563EB] focus:ring-[#2563EB]"
                 />
                 <span className="text-[9px] text-slate-400 leading-tight select-none">
-                  I agree to the Terms of Service and Privacy Policy. Your data will be stored securely under tenant boundary standards.
+                  I agree to the Terms of Service and Privacy Policy. All recruiter and candidate data is protected under logical isolation standards.
                 </span>
               </label>
             </div>
@@ -162,7 +162,7 @@ export const MarketingHero: React.FC = () => {
             <div className="flex flex-col sm:flex-row gap-3 pt-2">
               <Button
                 type="submit"
-                className="w-full bg-[#2563EB] hover:bg-blue-700 text-white font-bold h-11 text-xs rounded-lg cursor-pointer flex items-center justify-center"
+                className="w-full bg-[#2563EB] hover:bg-blue-700 text-white font-bold h-11 text-xs rounded-lg cursor-pointer flex items-center justify-center border-0"
               >
                 Start Free Trial
               </Button>
@@ -258,7 +258,7 @@ export const MarketingHero: React.FC = () => {
                       <span className="text-[9px] bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded uppercase font-bold">Signed & Accepted</span>
                     </div>
                     <div className="mt-2 p-3 bg-white dark:bg-slate-950 border border-slate-100 dark:border-slate-900 rounded-xl flex items-center justify-center">
-                      <span className="font-serif italic text-xl text-slate-750 dark:text-slate-350 font-medium tracking-wide select-none" style={{ fontFamily: 'Georgia, cursive' }}>
+                      <span className="font-serif italic text-xl text-slate-750 dark:text-slate-355 font-medium tracking-wide select-none" style={{ fontFamily: 'Georgia, cursive' }}>
                         {currentTab.mockup.name}
                       </span>
                     </div>
@@ -273,7 +273,7 @@ export const MarketingHero: React.FC = () => {
               <span>Dynamic workspace preview</span>
               <button 
                 onClick={() => router.push('/register')}
-                className="font-bold text-[#2563EB] hover:underline flex items-center space-x-1 cursor-pointer"
+                className="font-bold text-[#2563EB] hover:underline flex items-center space-x-1 cursor-pointer bg-transparent border-0"
               >
                 <span>Try this feature</span>
                 <ArrowRight className="h-3.5 w-3.5" />
@@ -285,28 +285,19 @@ export const MarketingHero: React.FC = () => {
       </div>
 
       {/* Trust Metrics ratings grid */}
-      <div className="max-w-7xl mx-auto px-6 py-12 border-t border-slate-200/50 dark:border-slate-800/60 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 text-center">
+      <div className="max-w-7xl mx-auto px-6 py-12 border-t border-slate-200/50 dark:border-slate-800/60 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 text-center">
         <div className="p-5 bg-white dark:bg-slate-900/20 border border-slate-200/40 dark:border-slate-850 rounded-2xl flex flex-col justify-between items-center h-full">
-          <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest block">Crozdesk Award 2026</span>
-          <span className="text-sm font-bold text-slate-900 dark:text-white my-2.5">Quality Choice</span>
+          <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest block">G2 Crowd 2026</span>
+          <span className="text-sm font-bold text-slate-900 dark:text-white my-2.5">High Performer</span>
           <div className="flex items-center space-x-1">
-            <span className="text-base font-extrabold text-slate-850 dark:text-slate-200">4.4</span>
+            <span className="text-base font-extrabold text-slate-850 dark:text-slate-200">4.8</span>
             <div className="flex text-amber-500"><Star className="h-3.5 w-3.5 fill-current" /></div>
           </div>
         </div>
 
         <div className="p-5 bg-white dark:bg-slate-900/20 border border-slate-200/40 dark:border-slate-850 rounded-2xl flex flex-col justify-between items-center h-full">
-          <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest block">Crozdesk Trust 2026</span>
-          <span className="text-sm font-bold text-slate-900 dark:text-white my-2.5">High Market Presence</span>
-          <div className="flex items-center space-x-1">
-            <span className="text-base font-extrabold text-slate-850 dark:text-slate-200">4.4</span>
-            <div className="flex text-amber-500"><Star className="h-3.5 w-3.5 fill-current" /></div>
-          </div>
-        </div>
-
-        <div className="p-5 bg-white dark:bg-slate-900/20 border border-slate-200/40 dark:border-slate-850 rounded-2xl flex flex-col justify-between items-center h-full">
-          <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest block">Software Suggest 2026</span>
-          <span className="text-sm font-bold text-slate-900 dark:text-white my-2.5">Top Performer</span>
+          <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest block">Capterra 2026</span>
+          <span className="text-sm font-bold text-slate-900 dark:text-white my-2.5">Shortlist Leader</span>
           <div className="flex items-center space-x-1">
             <span className="text-base font-extrabold text-slate-850 dark:text-slate-200">4.7</span>
             <div className="flex text-amber-500"><Star className="h-3.5 w-3.5 fill-current" /></div>
@@ -317,16 +308,16 @@ export const MarketingHero: React.FC = () => {
           <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest block">Software Advice 2026</span>
           <span className="text-sm font-bold text-slate-900 dark:text-white my-2.5">Front Runners</span>
           <div className="flex items-center space-x-1">
-            <span className="text-base font-extrabold text-slate-850 dark:text-slate-200">4.5</span>
+            <span className="text-base font-extrabold text-slate-850 dark:text-slate-200">4.6</span>
             <div className="flex text-amber-500"><Star className="h-3.5 w-3.5 fill-current" /></div>
           </div>
         </div>
 
         <div className="p-5 bg-white dark:bg-slate-900/20 border border-slate-200/40 dark:border-slate-850 rounded-2xl flex flex-col justify-between items-center h-full">
-          <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest block">Software Suggest UX 2026</span>
-          <span className="text-sm font-bold text-slate-900 dark:text-white my-2.5">User Experience Excellence</span>
+          <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest block">GetApp 2026</span>
+          <span className="text-sm font-bold text-slate-900 dark:text-white my-2.5">Category Leader</span>
           <div className="flex items-center space-x-1">
-            <span className="text-base font-extrabold text-slate-850 dark:text-slate-200">4.7</span>
+            <span className="text-base font-extrabold text-slate-850 dark:text-slate-200">4.9</span>
             <div className="flex text-amber-500"><Star className="h-3.5 w-3.5 fill-current" /></div>
           </div>
         </div>
