@@ -1,4 +1,4 @@
-import { Controller, Get, Patch, Param, Body, Query, UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, Patch, Post, Param, Body, Query, UseGuards, Request } from '@nestjs/common';
 import { ApplicationsService } from './applications.service';
 import { UpdateApplicationStageDto } from './dto/application.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -43,6 +43,18 @@ export class ApplicationsController {
   ) {
     const tenantId = req.tenantId;
     const result = await this.applicationsService.updateStage(id, dto.status, tenantId);
+    return createSuccessResponse(result);
+  }
+
+  @RequirePermissions(PERMISSIONS.VIEW_CANDIDATES)
+  @Post(':id/ai-questions')
+  async generateInterviewQuestions(
+    @Param('id') id: string,
+    @Body() body: { focusTopic?: string },
+    @Request() req: any
+  ) {
+    const tenantId = req.tenantId;
+    const result = await this.applicationsService.generateInterviewQuestions(id, body.focusTopic, tenantId);
     return createSuccessResponse(result);
   }
 }

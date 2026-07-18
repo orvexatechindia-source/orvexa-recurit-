@@ -171,3 +171,59 @@ export function getPasswordResetTemplate(userName: string, resetUrl: string): Em
     tenantId: '',
   };
 }
+
+// 5. Rejection Letter
+export function getRejectionTemplate(candidateName: string, jobTitle: string, companyName: string): EmailPayload {
+  const content = `
+    <h2>Application Status Update</h2>
+    <p>Hi ${candidateName},</p>
+    <p>Thank you for taking the time to apply for the <strong>${jobTitle}</strong> position and for speaking with us about your background.</p>
+    <p>Unfortunately, after careful consideration, we have decided to move forward with other candidates whose experience more closely matches the requirements of this role.</p>
+    <p>We appreciate your interest in <strong>${companyName}</strong> and wish you the best in your job search.</p>
+    <p>Best regards,<br>The ${companyName} Recruiting Team</p>
+  `;
+  return {
+    to: '',
+    subject: `Update on your application for ${jobTitle} at ${companyName}`,
+    bodyHtml: getEmailWrapper(content, 'Application Update'),
+    bodyText: `Hi ${candidateName}, Thank you for your interest in ${jobTitle} at ${companyName}. We've decided to move forward with other candidates.`,
+    tenantId: '',
+  };
+}
+
+// 6. Application Screening Status Update
+export function getScreeningTemplate(candidateName: string, jobTitle: string, companyName: string): EmailPayload {
+  const content = `
+    <h2>Application Status Update: Screening</h2>
+    <p>Hi ${candidateName},</p>
+    <p>We wanted to let you know that your application for the <strong>${jobTitle}</strong> position at <strong>${companyName}</strong> has been moved to our active <strong>Screening</strong> review stage.</p>
+    <p>Our team is currently evaluating your qualifications, and we will update you as soon as next steps are determined.</p>
+    <p>Best regards,<br>The ${companyName} Recruiting Team</p>
+  `;
+  return {
+    to: '',
+    subject: `Application Update: Screening stage for ${jobTitle} at ${companyName}`,
+    bodyHtml: getEmailWrapper(content, 'Application Screening'),
+    bodyText: `Hi ${candidateName}, Your application for ${jobTitle} at ${companyName} has moved to the Screening stage.`,
+    tenantId: '',
+  };
+}
+
+// 7. Welcome Hired Onboarding Status
+export function getWelcomeTemplate(candidateName: string, jobTitle: string, companyName: string): EmailPayload {
+  const content = `
+    <h2>Welcome to the Team!</h2>
+    <p>Hi ${candidateName},</p>
+    <p>A huge congratulations on officially accepting our job offer as the new <strong>${jobTitle}</strong> at <strong>${companyName}</strong>!</p>
+    <p>We are absolutely thrilled to welcome you to the company and look forward to an amazing journey together. Our HR onboarding team will reach out shortly with onboarding details, scheduling, and portal setups.</p>
+    <p>Welcome aboard!<br>The ${companyName} Team</p>
+  `;
+  return {
+    to: '',
+    subject: `Congratulations & Welcome to ${companyName}!`,
+    bodyHtml: getEmailWrapper(content, 'Welcome Onboard'),
+    bodyText: `Hi ${candidateName}, Congratulations and welcome to the team as ${jobTitle} at ${companyName}!`,
+    tenantId: '',
+  };
+}
+

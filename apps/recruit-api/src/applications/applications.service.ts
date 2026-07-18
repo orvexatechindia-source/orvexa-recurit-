@@ -1,10 +1,23 @@
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { ApplicationStatus } from '@prisma/client';
+import { SesService } from '../notifications/ses.service';
+import { AiService } from '../ai/ai.service';
+import { 
+  getScreeningTemplate, 
+  getInterviewInvitationTemplate, 
+  getOfferLetterTemplate, 
+  getRejectionTemplate, 
+  getWelcomeTemplate 
+} from '@orvexa/notifications';
 
 @Injectable()
 export class ApplicationsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly sesService: SesService,
+    private readonly aiService: AiService
+  ) {}
 
   async findAll(tenantId: string, jobId?: string) {
     const whereClause: any = { tenantId };
@@ -126,6 +139,57 @@ export class ApplicationsService {
       },
     });
 
+    // 4. Send Stage Change Auto-Emails
+    try {
+      const tenant = await this.prisma.tenant.findUnique({
+        where: { id: tenantId }
+      });
+      const companyName = tenant?.name || 'Orvexatech';
+      const candidateName = `${updated.candidate.firstName} ${updated.candidate.lastName}`;
+      const jobTitle = updated.job.title;
+      let emailPayload = null;
+
+      if (status === ApplicationStatus.SCREENING) {
+        emailPayload = getScreeningTemplate(candidateName, jobTitle, companyName);
+      } else if (status === ApplicationStatus.INTERVIEWING) {
+        const scheduleUrl = `http://${tenant?.domain || 'localhost:3000'}/careers/${tenant?.domain}/portal/dashboard`;
+        emailPayload = getInterviewInvitationTemplate(candidateName, jobTitle, companyName, scheduleUrl);
+      } else if (status === ApplicationStatus.OFFER) {
+        const offerUrl = `http://${tenant?.domain || 'localhost:3000'}/careers/${tenant?.domain}/portal/dashboard`;
+        emailPayload = getOfferLetterTemplate(candidateName, jobTitle, companyName, offerUrl);
+      } else if (status === ApplicationStatus.REJECTED) {
+        emailPayload = getRejectionTemplate(candidateName, jobTitle, companyName);
+      } else if (status === ApplicationStatus.HIRED) {
+        emailPayload = getWelcomeTemplate(candidateName, jobTitle, companyName);
+      }
+
+      if (emailPayload) {
+        emailPayload.to = updated.candidate.email;
+        emailPayload.tenantId = tenantId;
+        await this.sesService.sendEmail(emailPayload);
+      }
+    } catch (err: any) {
+      console.warn('Failed to send stage transition email notification:', err.message || err);
+    }
+
     return updated;
+  }
+
+  async generateInterviewQuestions(id: string, focusTopic: string | undefined, tenantId: string) {
+    const app = await this.findOne(id, tenantId);
+    
+    const summary = app.candidate.summary || '';
+    const skills = app.candidate.skills || [];
+    const jobDescription = app.job.description || '';
+
+    const questions = await this.aiService.generateInterviewQuestions(
+      summary,
+      skills,
+      jobDescription,
+      focusTopic,
+      tenantId
+    );
+
+    return questions;
   }
 }

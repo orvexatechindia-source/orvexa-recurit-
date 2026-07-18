@@ -23,9 +23,13 @@ export class ReviewsController {
 
   @RequirePermissions(PERMISSIONS.VIEW_CANDIDATES)
   @Get()
-  async findAll(@Query('applicationId') applicationId: string, @Request() req: any) {
+  async findAll(@Request() req: any, @Query('applicationId') applicationId?: string) {
     const tenantId = req.tenantId;
-    const result = await this.reviewsService.findAllForApplication(applicationId, tenantId);
+    if (applicationId) {
+      const result = await this.reviewsService.findAllForApplication(applicationId, tenantId);
+      return createSuccessResponse(result);
+    }
+    const result = await this.reviewsService.findAll(tenantId);
     return createSuccessResponse(result);
   }
 }

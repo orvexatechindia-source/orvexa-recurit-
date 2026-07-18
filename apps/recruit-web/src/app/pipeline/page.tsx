@@ -103,6 +103,11 @@ export default function PipelinePage() {
   const [selectedApp, setSelectedApp] = useState<Application | null>(null);
   const [loadingDetails, setLoadingDetails] = useState(false);
 
+  // AI Question Generator states
+  const [focusTopic, setFocusTopic] = useState('');
+  const [customAiQuestions, setCustomAiQuestions] = useState<string[]>([]);
+  const [loadingAiQuestions, setLoadingAiQuestions] = useState(false);
+
   // Phase 8: Interviewer Team state
   const [team, setTeam] = useState<any[]>([]);
   const [interviewerId, setInterviewerId] = useState('');
@@ -210,6 +215,8 @@ export default function PipelinePage() {
   const loadApplicationDetails = async (appId: string) => {
     setLoadingDetails(true);
     setSelectedAppId(appId);
+    setFocusTopic('');
+    setCustomAiQuestions([]);
     try {
       const response = await fetch(`http://localhost:4000/api/v1/applications/${appId}`, {
         headers: {
@@ -262,6 +269,34 @@ export default function PipelinePage() {
       alert(err.message);
     } finally {
       setExtendingOffer(false);
+    }
+  };
+
+  // Generate Custom Interview Questions with Gemini
+  const handleGenerateAiQuestions = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedAppId) return;
+    setLoadingAiQuestions(true);
+    try {
+      const response = await fetch(`http://localhost:4000/api/v1/applications/${selectedAppId}/ai-questions`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}`,
+          'X-Tenant-ID': tenantId || '',
+        },
+        body: JSON.stringify({ focusTopic: focusTopic || undefined }),
+      });
+      const result = await response.json();
+      if (result.success) {
+        setCustomAiQuestions(result.data);
+      } else {
+        alert(result.error?.message || 'Failed to generate prep questions.');
+      }
+    } catch (err: any) {
+      alert('Communication error with AI questions module.');
+    } finally {
+      setLoadingAiQuestions(false);
     }
   };
 
@@ -727,6 +762,60 @@ export default function PipelinePage() {
                     </div>
                   </div>
                 )}
+
+                {/* Real-time Gemini AI Prep Question Generator */}
+                <div className="space-y-4 pt-6 border-t border-slate-150 dark:border-slate-800/60">
+                  <div className="flex items-center space-x-2">
+                    <Award className="h-4.5 w-4.5 text-[#046bd2] dark:text-cyan-400" />
+                    <h4 className="text-sm font-bold text-slate-900 dark:text-white font-display">AI Interview Prep Co-Pilot</h4>
+                  </div>
+
+                  <form onSubmit={handleGenerateAiQuestions} className="p-4 bg-blue-50/10 dark:bg-blue-950/5 rounded-2xl border border-blue-100 dark:border-blue-900/30 space-y-3 text-left">
+                    <p className="text-xs text-slate-400 font-medium">
+                      Generate tailored interview questions targeting specific topics or technologies.
+                    </p>
+                    <div className="flex space-x-2">
+                      <input
+                        type="text"
+                        placeholder="e.g. AWS Lambda, System Design"
+                        value={focusTopic}
+                        onChange={(e) => setFocusTopic(e.target.value)}
+                        className="flex-1 h-9 px-2 text-xs rounded-md border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0B1220] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#046bd2]"
+                      />
+                      <Button
+                        type="submit"
+                        disabled={loadingAiQuestions}
+                        className="bg-[#046bd2] hover:bg-blue-600 text-white font-bold h-9 px-3 border-0 text-xs shrink-0"
+                      >
+                        {loadingAiQuestions ? 'Analyzing...' : 'Generate'}
+                      </Button>
+                    </div>
+                  </form>
+
+                  {customAiQuestions.length > 0 && (
+                    <div className="space-y-3 mt-3 animate-fade-in">
+                      {customAiQuestions.map((q, idx) => (
+                        <div key={idx} className="flex justify-between items-start gap-2.5 p-3 rounded-xl border border-emerald-100 dark:border-emerald-900/30 bg-emerald-50/20 dark:bg-emerald-950/5 text-xs text-left">
+                          <div className="flex gap-2">
+                            <span className="font-bold text-emerald-600 dark:text-emerald-400 shrink-0">AI Q{idx + 1}:</span>
+                            <p className="text-slate-700 dark:text-slate-350 leading-relaxed font-semibold">{q}</p>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              navigator.clipboard.writeText(q);
+                              alert('Question copied to clipboard.');
+                            }}
+                            className="text-slate-400 hover:text-[#046bd2] bg-transparent border-0 cursor-pointer shrink-0"
+                            title="Copy to Clipboard"
+                          >
+                            <FileText className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
 
                 {/* Phase 8: Interview Scheduler section */}
                 <div className="space-y-4 pt-6 border-t border-slate-150 dark:border-slate-800/60">

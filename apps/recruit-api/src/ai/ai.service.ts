@@ -145,4 +145,66 @@ Return ONLY the markdown job description. Do NOT include any intro greetings, co
       return `### Role Overview\nDescription expansion failed: ${err.message || err}\n\n### Highlights\n- Outline: ${outline}`;
     }
   }
+
+  async generateInterviewQuestions(
+    summary: string,
+    skills: string[],
+    jobDescription: string,
+    focusTopic: string | undefined,
+    tenantId: string
+  ): Promise<string[]> {
+    if (!this.geminiService) {
+      return [
+        `Mock Question 1: How does your experience in ${skills.slice(0, 2).join(', ') || 'software development'} relate to this role?`,
+        `Mock Question 2: Can you elaborate on your skills regarding ${focusTopic || 'system design'}?`,
+        `Mock Question 3: How do you handle code reviews and testing in a team environment?`
+      ];
+    }
+
+    const focusPrompt = focusTopic 
+      ? `Ensure you prioritize generating questions that specifically target the candidate's knowledge of: "${focusTopic}".`
+      : 'Generate custom questions focusing on gaps between the candidate\'s skills/summary and the job description.';
+
+    const systemPrompt = `You are an elite AI technical interviewer. Generate a list of exactly 4 interview questions tailored to the candidate's profile and the job description.
+
+CANDIDATE SUMMARY:
+${summary}
+
+CANDIDATE SKILLS:
+${skills.join(', ')}
+
+JOB DESCRIPTION:
+${jobDescription}
+
+FOCUS TOPIC:
+${focusPrompt}
+
+You MUST return the questions in a strict JSON string array format:
+["question_1", "question_2", "question_3", "question_4"]
+
+Do NOT wrap the response in markdown blocks like \`\`\`json. Return ONLY the raw JSON array string.`;
+
+    try {
+      const response = await this.geminiService.generateContent({
+        tenantId,
+        prompt: systemPrompt,
+        promptVersion: 'interview_questions_v1',
+        temperature: 0.3,
+      });
+
+      const cleanJson = response.text
+        .replace(/^```json\s*/i, '')
+        .replace(/```\s*$/i, '')
+        .trim();
+
+      const parsed: string[] = JSON.parse(cleanJson);
+      return parsed;
+    } catch (err: any) {
+      console.error('Gemini questions generation failed:', err.message || err);
+      return [
+        `Could you walk us through your experience related to ${focusTopic || 'this role'}?`
+      ];
+    }
+  }
 }
+

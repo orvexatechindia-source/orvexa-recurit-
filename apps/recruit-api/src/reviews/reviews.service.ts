@@ -68,4 +68,39 @@ export class ReviewsService {
       }
     });
   }
+
+  async findAll(tenantId: string) {
+    return this.prisma.review.findMany({
+      where: { tenantId },
+      include: {
+        interviewer: {
+          select: {
+            id: true,
+            name: true,
+            email: true
+          }
+        },
+        application: {
+          include: {
+            candidate: {
+              select: {
+                firstName: true,
+                lastName: true,
+                email: true
+              }
+            },
+            job: {
+              select: {
+                title: true
+              }
+            }
+          }
+        }
+      },
+      orderBy: {
+        createdAt: 'desc'
+      }
+    });
+  }
 }
+
