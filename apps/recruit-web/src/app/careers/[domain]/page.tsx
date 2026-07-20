@@ -4,7 +4,8 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@orvexa/ui';
-import { Briefcase, MapPin, Calendar, Clock } from 'lucide-react';
+import { Briefcase, MapPin, Calendar, Clock, Globe } from 'lucide-react';
+import { SupportedLanguage, translations } from '@/lib/i18n';
 
 interface Job {
   id: string;
@@ -21,6 +22,9 @@ export default function CareerPortalPage() {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [lang, setLang] = useState<SupportedLanguage>('en');
+
+  const t = translations[lang];
 
   useEffect(() => {
     const fetchPublicJobs = async () => {
@@ -46,13 +50,31 @@ export default function CareerPortalPage() {
   return (
     <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#0B1220] py-16 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto">
+        {/* Language Switcher Bar */}
+        <div className="flex justify-end mb-6">
+          <div className="flex items-center space-x-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-1.5 shadow-sm">
+            <Globe className="h-4 w-4 text-[#2563EB]" />
+            <select
+              value={lang}
+              onChange={(e) => setLang(e.target.value as SupportedLanguage)}
+              className="bg-transparent text-xs font-bold text-slate-700 dark:text-slate-200 focus:outline-none cursor-pointer"
+            >
+              <option value="en">English (US)</option>
+              <option value="es">Español (ES)</option>
+              <option value="fr">Français (FR)</option>
+              <option value="de">Deutsch (DE)</option>
+              <option value="hi">हिन्दी (HI)</option>
+            </select>
+          </div>
+        </div>
+
         {/* Portal Header */}
         <div className="text-center mb-16">
           <h1 className="text-4xl font-extrabold text-[#0B1220] dark:text-white font-display uppercase tracking-tight">
             Careers at <span className="text-[#2563EB] capitalize">{domain}</span>
           </h1>
-          <p className="mt-4 text-lg text-slate-500 dark:text-slate-400">
-            Discover your next opportunity and join our global team.
+          <p className="mt-4 text-lg text-slate-500 dark:text-slate-400 font-medium">
+            {t.openPositions}
           </p>
         </div>
 
@@ -93,10 +115,11 @@ export default function CareerPortalPage() {
                       </span>
                     </div>
                   </div>
-                  <Link href={`/careers/${domain}/${job.id}/apply`}>
-                    <button className="h-10 px-6 font-semibold bg-[#2563EB] text-white hover:bg-[#1d4ed8] rounded-md transition-all duration-200 active:scale-98 self-start sm:self-center">
-                      Apply Now
-                    </button>
+                  <Link
+                    href={`/careers/${domain}/${job.id}/apply?lang=${lang}`}
+                    className="inline-flex items-center justify-center h-10 px-6 font-semibold bg-[#2563EB] text-white hover:bg-[#1d4ed8] rounded-md transition-all duration-200 active:scale-98 self-start sm:self-center"
+                  >
+                    {t.applyNow}
                   </Link>
                 </CardHeader>
                 <CardContent className="border-t border-slate-100 dark:border-slate-800/80 pt-4">

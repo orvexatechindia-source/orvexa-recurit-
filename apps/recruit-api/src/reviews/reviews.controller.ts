@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Query, UseGuards, Request } from '@nestjs/common';
+import { Controller, Post, Body, Get, Query, Res, UseGuards, Request } from '@nestjs/common';
 import { ReviewsService } from './reviews.service';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -11,6 +11,16 @@ import { createSuccessResponse } from '@orvexa/shared';
 @Controller('api/v1/reviews')
 export class ReviewsController {
   constructor(private readonly reviewsService: ReviewsService) {}
+
+  @RequirePermissions(PERMISSIONS.VIEW_CANDIDATES)
+  @Get('export/csv')
+  async exportCsv(@Request() req: any, @Res() res: any) {
+    const tenantId = req.tenantId;
+    const csvData = await this.reviewsService.exportReviewsCsv(tenantId);
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', 'attachment; filename="scorecards_export.csv"');
+    return res.send(csvData);
+  }
 
   @RequirePermissions(PERMISSIONS.MANAGE_APPLICATIONS)
   @Post()

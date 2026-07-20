@@ -14,7 +14,8 @@ import {
   Plus, 
   X, 
   Award, 
-  AlertCircle 
+  AlertCircle,
+  Download
 } from 'lucide-react';
 
 interface Review {
@@ -151,6 +152,27 @@ export default function ReviewsPage() {
   const hireCount = reviews.filter(r => r.recommendation === 'HIRE' || r.recommendation === 'STRONG_HIRE').length;
   const hireRatio = totalReviews > 0 ? Math.round((hireCount / totalReviews) * 100) : 0;
 
+  const handleExportCsv = async () => {
+    try {
+      const response = await fetch('http://localhost:4000/api/v1/reviews/export/csv', {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'X-Tenant-ID': tenantId || '',
+        },
+      });
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'scorecards_export.csv';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    } catch (err) {
+      alert('Failed to export scorecards CSV.');
+    }
+  };
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
@@ -164,6 +186,15 @@ export default function ReviewsPage() {
             <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
               Audit interview evaluations, ratings, and hiring recommendations.
             </p>
+          </div>
+          <div className="flex space-x-3 shrink-0">
+            <Button
+              onClick={handleExportCsv}
+              className="border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-slate-50 text-slate-700 dark:text-slate-200 font-bold flex items-center space-x-1.5 h-10 px-4"
+            >
+              <Download className="h-4 w-4 text-[#2563EB]" />
+              <span>Export CSV</span>
+            </Button>
           </div>
         </div>
 

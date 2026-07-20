@@ -57,4 +57,25 @@ export class ApplicationsController {
     const result = await this.applicationsService.generateInterviewQuestions(id, body.focusTopic, tenantId);
     return createSuccessResponse(result);
   }
+
+  @RequirePermissions(PERMISSIONS.VIEW_CANDIDATES)
+  @Get(':id/notes')
+  async getNotes(@Param('id') id: string, @Request() req: any) {
+    const tenantId = req.tenantId;
+    const result = await this.applicationsService.getNotes(id, tenantId);
+    return createSuccessResponse(result);
+  }
+
+  @RequirePermissions(PERMISSIONS.MANAGE_APPLICATIONS)
+  @Post(':id/notes')
+  async addNote(
+    @Param('id') id: string,
+    @Body() body: { message: string; isInternal?: boolean },
+    @Request() req: any
+  ) {
+    const tenantId = req.tenantId;
+    const authorId = req.user.id;
+    const result = await this.applicationsService.addNote(id, authorId, body.message, body.isInternal ?? true, tenantId);
+    return createSuccessResponse(result);
+  }
 }

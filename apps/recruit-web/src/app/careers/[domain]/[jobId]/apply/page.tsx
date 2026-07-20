@@ -1,9 +1,10 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { Button, Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@orvexa/ui';
-import { Upload, ArrowLeft, CheckCircle2, File, Layers } from 'lucide-react';
+import { Upload, ArrowLeft, CheckCircle2, File, Layers, Globe } from 'lucide-react';
+import { SupportedLanguage, translations } from '@/lib/i18n';
 
 interface CustomField {
   id: string;
@@ -15,8 +16,12 @@ interface CustomField {
 export default function CareerApplyPage() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const domain = params.domain as string;
   const jobId = params.jobId as string;
+
+  const [lang, setLang] = useState<SupportedLanguage>((searchParams.get('lang') as SupportedLanguage) || 'en');
+  const t = translations[lang];
 
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -156,12 +161,9 @@ export default function CareerApplyPage() {
         <Card className="max-w-md w-full border border-slate-200 dark:border-slate-800 text-center py-8">
           <CardContent className="flex flex-col items-center">
             <CheckCircle2 className="h-16 w-16 text-emerald-500 mb-4" />
-            <h2 className="text-2xl font-bold text-slate-900 dark:text-white font-display">Application Submitted!</h2>
-            <p className="text-sm text-slate-500 mt-2">
-              Thank you for applying. Our talent acquisition team will review your credentials and get back to you shortly.
-            </p>
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-white font-display">{t.applicationSuccess}</h2>
             <Button onClick={() => router.push(`/careers/${domain}`)} className="mt-8">
-              Back to Career Page
+              {t.backToCareers}
             </Button>
           </CardContent>
         </Card>
@@ -172,18 +174,35 @@ export default function CareerApplyPage() {
   return (
     <div className="min-h-screen bg-[#F0F5FA] dark:bg-[#0B1220] py-16 px-4 sm:px-6 lg:px-8">
       <div className="max-w-xl mx-auto">
-        <button 
-          onClick={() => router.push(`/careers/${domain}`)}
-          className="flex items-center space-x-2 text-sm text-slate-500 hover:text-slate-900 dark:hover:text-white mb-6 transition-all"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          <span>Back to Open Positions</span>
-        </button>
+        <div className="flex justify-between items-center mb-6">
+          <button 
+            onClick={() => router.push(`/careers/${domain}?lang=${lang}`)}
+            className="flex items-center space-x-2 text-sm text-slate-500 hover:text-slate-900 dark:hover:text-white transition-all font-semibold"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            <span>{t.backToCareers}</span>
+          </button>
+
+          <div className="flex items-center space-x-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-1.5 shadow-sm">
+            <Globe className="h-4 w-4 text-[#2563EB]" />
+            <select
+              value={lang}
+              onChange={(e) => setLang(e.target.value as SupportedLanguage)}
+              className="bg-transparent text-xs font-bold text-slate-700 dark:text-slate-200 focus:outline-none cursor-pointer"
+            >
+              <option value="en">English (US)</option>
+              <option value="es">Español (ES)</option>
+              <option value="fr">Français (FR)</option>
+              <option value="de">Deutsch (DE)</option>
+              <option value="hi">हिन्दी (HI)</option>
+            </select>
+          </div>
+        </div>
 
         <form onSubmit={handleSubmit}>
           <Card className="border border-slate-200 dark:border-slate-800">
             <CardHeader>
-              <CardTitle className="text-2xl font-bold text-slate-900 dark:text-white font-display">Submit Application</CardTitle>
+              <CardTitle className="text-2xl font-bold text-slate-900 dark:text-white font-display">{t.submitApplication}</CardTitle>
               <CardDescription>Enter your contact details and upload your professional resume.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -196,7 +215,7 @@ export default function CareerApplyPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <label className="text-sm font-medium text-slate-700 dark:text-slate-300" htmlFor="firstName">
-                    First Name
+                    {t.firstName}
                   </label>
                   <input
                     id="firstName"

@@ -102,5 +102,24 @@ export class ReviewsService {
       }
     });
   }
+
+  async exportReviewsCsv(tenantId: string): Promise<string> {
+    const reviews = await this.findAll(tenantId);
+    const headers = ['Review ID', 'Candidate Name', 'Candidate Email', 'Job Title', 'Rating', 'Recommendation', 'Interviewer Name', 'Interviewer Email', 'Notes', 'Created At'];
+    const rows = reviews.map(r => [
+      r.id,
+      `"${((r.application?.candidate?.firstName || '') + ' ' + (r.application?.candidate?.lastName || '')).replace(/"/g, '""')}"`,
+      `"${(r.application?.candidate?.email || '').replace(/"/g, '""')}"`,
+      `"${(r.application?.job?.title || '').replace(/"/g, '""')}"`,
+      r.rating,
+      r.recommendation,
+      `"${(r.interviewer?.name || '').replace(/"/g, '""')}"`,
+      `"${(r.interviewer?.email || '').replace(/"/g, '""')}"`,
+      `"${(r.notes || '').replace(/"/g, '""')}"`,
+      new Date(r.createdAt).toISOString()
+    ]);
+
+    return [headers.join(','), ...rows.map(row => row.join(','))].join('\n');
+  }
 }
 

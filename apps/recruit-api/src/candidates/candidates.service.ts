@@ -265,4 +265,22 @@ export class CandidatesService {
 
     return { success: true, message: 'Candidate profile and all associated data deleted for compliance.' };
   }
+
+  async exportCandidatesCsv(tenantId: string): Promise<string> {
+    const candidates = await this.findAllFiltered(tenantId, {});
+    const headers = ['Candidate ID', 'First Name', 'Last Name', 'Email', 'Phone', 'Skills', 'Summary', 'Applied Jobs Count', 'Created At'];
+    const rows = candidates.map(c => [
+      c.id,
+      `"${c.firstName.replace(/"/g, '""')}"`,
+      `"${c.lastName.replace(/"/g, '""')}"`,
+      `"${c.email.replace(/"/g, '""')}"`,
+      `"${(c.phone || '').replace(/"/g, '""')}"`,
+      `"${(c.skills || []).join('; ').replace(/"/g, '""')}"`,
+      `"${(c.summary || '').replace(/"/g, '""')}"`,
+      c.applications ? c.applications.length : 0,
+      new Date(c.createdAt).toISOString()
+    ]);
+
+    return [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+  }
 }

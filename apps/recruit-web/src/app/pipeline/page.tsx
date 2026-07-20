@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '../../context/auth-context';
 import { DashboardLayout } from '../../components/dashboard-layout';
 import { Button, Card, CardHeader, CardTitle, CardDescription, CardContent } from '@orvexa/ui';
-import { GitBranch, MapPin, User, ChevronRight, ChevronLeft, Award, X, FileText, Download, CheckCircle2, AlertTriangle, HelpCircle, Calendar, Video } from 'lucide-react';
+import { GitBranch, MapPin, User, ChevronRight, ChevronLeft, Award, X, FileText, Download, CheckCircle2, AlertTriangle, HelpCircle, Calendar, Video, MessageSquare } from 'lucide-react';
 
 interface Job {
   id: string;
@@ -107,6 +107,12 @@ export default function PipelinePage() {
   const [focusTopic, setFocusTopic] = useState('');
   const [customAiQuestions, setCustomAiQuestions] = useState<string[]>([]);
   const [loadingAiQuestions, setLoadingAiQuestions] = useState(false);
+
+  // Candidate Notes & Messaging states
+  const [candidateNotes, setCandidateNotes] = useState<any[]>([]);
+  const [newNoteMessage, setNewNoteMessage] = useState('');
+  const [isNoteInternal, setIsNoteInternal] = useState(true);
+  const [loadingNotes, setLoadingNotes] = useState(false);
 
   // Phase 8: Interviewer Team state
   const [team, setTeam] = useState<any[]>([]);
@@ -217,6 +223,7 @@ export default function PipelinePage() {
     setSelectedAppId(appId);
     setFocusTopic('');
     setCustomAiQuestions([]);
+    fetchCandidateNotes(appId);
     try {
       const response = await fetch(`http://localhost:4000/api/v1/applications/${appId}`, {
         headers: {
@@ -297,6 +304,52 @@ export default function PipelinePage() {
       alert('Communication error with AI questions module.');
     } finally {
       setLoadingAiQuestions(false);
+    }
+  };
+
+  const fetchCandidateNotes = async (appId: string) => {
+    try {
+      const response = await fetch(`http://localhost:4000/api/v1/applications/${appId}/notes`, {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'X-Tenant-ID': tenantId || '',
+        },
+      });
+      const result = await response.json();
+      if (result.success) {
+        setCandidateNotes(result.data);
+      }
+    } catch (err) {
+      console.error('Failed to load candidate notes:', err);
+    }
+  };
+
+  const handlePostNote = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedAppId || !newNoteMessage.trim()) return;
+    setLoadingNotes(true);
+    try {
+      const response = await fetch(`http://localhost:4000/api/v1/applications/${selectedAppId}/notes`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}`,
+          'X-Tenant-ID': tenantId || '',
+        },
+        body: JSON.stringify({
+          message: newNoteMessage,
+          isInternal: isNoteInternal,
+        }),
+      });
+      const result = await response.json();
+      if (result.success) {
+        setNewNoteMessage('');
+        fetchCandidateNotes(selectedAppId);
+      }
+    } catch (err) {
+      alert('Failed to post note.');
+    } finally {
+      setLoadingNotes(false);
     }
   };
 
@@ -815,6 +868,59 @@ export default function PipelinePage() {
                       ))}
                     </div>
                   )}
+                </div>
+
+                {/* In-App Candidate Messaging & Recruiter Notes Feed */}
+                <div className="space-y-4 pt-6 border-t border-slate-150 dark:border-slate-800/60">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <MessageSquare className="h-4.5 w-4.5 text-[#046bd2] dark:text-cyan-400" />
+                      <h4 className="text-sm font-bold text-slate-900 dark:text-white font-display">Recruiter Notes & Feed</h4>
+                    </div>
+                  </div>
+
+                  <form onSubmit={handlePostNote} className="space-y-2">
+                    <textarea
+                      placeholder="Add an internal note or update about this candidate..."
+                      value={newNoteMessage}
+                      onChange={(e) => setNewNoteMessage(e.target.value)}
+                      className="w-full h-20 p-2.5 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#0B1220] text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#046bd2] resize-none"
+                    />
+                    <div className="flex justify-between items-center">
+                      <label className="flex items-center space-x-1.5 text-xs text-slate-500 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={isNoteInternal}
+                          onChange={(e) => setIsNoteInternal(e.target.checked)}
+                          className="rounded border-slate-300 text-[#046bd2]"
+                        />
+                        <span>Internal Note (Team only)</span>
+                      </label>
+                      <Button
+                        type="submit"
+                        disabled={loadingNotes}
+                        className="bg-[#046bd2] hover:bg-blue-600 text-white font-bold h-8 px-3 border-0 text-xs"
+                      >
+                        {loadingNotes ? 'Posting...' : 'Post Note'}
+                      </Button>
+                    </div>
+                  </form>
+
+                  <div className="space-y-2.5 mt-3">
+                    {candidateNotes.length === 0 ? (
+                      <p className="text-xs text-slate-400 italic text-center py-2">No notes posted yet for this candidate.</p>
+                    ) : (
+                      candidateNotes.map(n => (
+                        <div key={n.id} className="p-3 rounded-xl border border-slate-200/60 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/30 text-xs text-left space-y-1">
+                          <div className="flex justify-between items-center text-[10px]">
+                            <span className="font-bold text-slate-800 dark:text-slate-200">{n.author?.name || 'Recruiter'}</span>
+                            <span className="text-slate-400">{new Date(n.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                          </div>
+                          <p className="text-slate-700 dark:text-slate-300 font-medium">{n.message}</p>
+                        </div>
+                      ))
+                    )}
+                  </div>
                 </div>
 
                 {/* Phase 8: Interview Scheduler section */}

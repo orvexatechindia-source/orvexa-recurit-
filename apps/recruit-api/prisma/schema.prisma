@@ -70,6 +70,7 @@ model Tenant {
   reviews      Review[]
   customFields CustomField[]
   customValues CustomValue[]
+  candidateNotes CandidateNote[]
   country            String        @default("US")
   subscriptionPlan   String        @default("FREE") @map("subscription_plan")
   subscriptionStatus String        @default("ACTIVE") @map("subscription_status")
@@ -95,6 +96,7 @@ model User {
   auditLogs    AuditLog[]
   interviews   Interview[]
   reviews      Review[]
+  candidateNotes CandidateNote[]
 
   @@index([tenantId])
   @@map("users")
@@ -153,6 +155,7 @@ model Application {
   updatedAt          DateTime          @updatedAt @map("updated_at")
   interviews         Interview[]
   reviews            Review[]
+  notes              CandidateNote[]
   offerLetter        String?           @map("offer_letter")
   offerStatus        String?           @map("offer_status") // "EXTENDED", "ACCEPTED", "DECLINED"
   signedAt           DateTime?         @map("signed_at")
@@ -257,3 +260,22 @@ model CustomValue {
   @@index([fieldId])
   @@map("custom_values")
 }
+
+model CandidateNote {
+  id            String      @id @default(uuid())
+  tenantId      String      @map("tenant_id")
+  tenant        Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  applicationId String      @map("application_id")
+  application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  authorId      String      @map("author_id")
+  author        User        @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  message       String
+  isInternal    Boolean     @default(true) @map("is_internal")
+  createdAt     DateTime    @default(now()) @map("created_at")
+
+  @@index([tenantId])
+  @@index([applicationId])
+  @@index([authorId])
+  @@map("candidate_notes")
+}
+

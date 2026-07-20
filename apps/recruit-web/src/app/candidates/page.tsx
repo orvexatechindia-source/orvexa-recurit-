@@ -135,6 +135,27 @@ export default function CandidatesPage() {
     }
   };
 
+  const handleExportCsv = async () => {
+    try {
+      const response = await fetch('http://localhost:4000/api/v1/candidates/export/csv', {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'X-Tenant-ID': tenantId || '',
+        },
+      });
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'candidates_export.csv';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    } catch (err) {
+      alert('Failed to export candidates CSV.');
+    }
+  };
+
   const hasActiveFilters = query.trim() || skills.trim() || minMatchScore || selectedJobId;
 
   return (
@@ -143,6 +164,15 @@ export default function CandidatesPage() {
         <div>
           <h2 className="text-2xl font-bold text-[#0B1220] dark:text-white font-display">Candidate Directory</h2>
           <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">Search, filter, and audit applicant profiles in your workspace.</p>
+        </div>
+        <div className="flex space-x-3">
+          <Button
+            onClick={handleExportCsv}
+            className="border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-slate-50 text-slate-700 dark:text-slate-200 font-bold flex items-center space-x-1.5 h-10 px-4"
+          >
+            <Download className="h-4 w-4 text-[#2563EB]" />
+            <span>Export CSV</span>
+          </Button>
         </div>
       </div>
 

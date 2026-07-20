@@ -192,4 +192,43 @@ export class ApplicationsService {
 
     return questions;
   }
+
+  async addNote(applicationId: string, authorId: string, message: string, isInternal: boolean, tenantId: string) {
+    await this.findOne(applicationId, tenantId);
+    return this.prisma.candidateNote.create({
+      data: {
+        tenantId,
+        applicationId,
+        authorId,
+        message,
+        isInternal: isInternal ?? true
+      },
+      include: {
+        author: {
+          select: {
+            id: true,
+            name: true,
+            email: true
+          }
+        }
+      }
+    });
+  }
+
+  async getNotes(applicationId: string, tenantId: string) {
+    await this.findOne(applicationId, tenantId);
+    return this.prisma.candidateNote.findMany({
+      where: { applicationId, tenantId },
+      include: {
+        author: {
+          select: {
+            id: true,
+            name: true,
+            email: true
+          }
+        }
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+  }
 }

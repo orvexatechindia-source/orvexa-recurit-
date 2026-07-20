@@ -10,7 +10,8 @@ import {
   UseInterceptors, 
   UploadedFile, 
   BadRequestException,
-  Query
+  Query,
+  Res
 } from '@nestjs/common';
 import { CandidatesService } from './candidates.service';
 import { ApplyJobDto } from './dto/candidates.dto';
@@ -25,6 +26,18 @@ import { multerOptions } from '../common/config/multer.config';
 @Controller('api/v1/candidates')
 export class CandidatesController {
   constructor(private readonly candidatesService: CandidatesService) {}
+
+  // CSV Data Export
+  @UseGuards(JwtAuthGuard, RbacGuard)
+  @RequirePermissions(PERMISSIONS.VIEW_CANDIDATES)
+  @Get('export/csv')
+  async exportCsv(@Request() req: any, @Res() res: any) {
+    const tenantId = req.tenantId;
+    const csvData = await this.candidatesService.exportCandidatesCsv(tenantId);
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', 'attachment; filename="candidates_export.csv"');
+    return res.send(csvData);
+  }
 
   // 1. Public Job Application Intake (Includes Resume File Uploader)
   @Post('apply')
